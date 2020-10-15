@@ -1,10 +1,6 @@
-import java.io.*;
+package CEP;
+
 import java.lang.String;
-import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -122,7 +118,7 @@ public class AccessEvent {
                 protocol, responseCode);
     }
 
-//    public AccessEvent(HashMap<String, String> map) {
+//    public CEP.AccessEvent(HashMap<String, String> map) {
 //        dateTime = Long.parseLong(map.get(dateTime))/1000;
 //        ipAddress = map.get(ipAddress);
 //        String ResponseCode = map.get(responseCode);
