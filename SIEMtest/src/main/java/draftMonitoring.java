@@ -12,6 +12,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class draftMonitoring {
 
+    private static Object runtime;
+
     public static void main(String[] args) throws IOException {
         System.out.println("Please wait while I'm configuring the Event Processor... ");
         new EPAdapter().execute("get-all-access-event", "select * from AccessEvent").
@@ -37,21 +39,23 @@ public class draftMonitoring {
 
     }
 
+    private static String fileErrorlog = "/var/log/apache2/error.log";
 
-    File file = new File("log.txt");
-    Scanner scanner = null;
-        try {
-        scanner = new Scanner(file);
-    } catch (
-    FileNotFoundException e) {
-        e.printStackTrace();
-    }
+    AccessEvent accessEvent = new AccessEvent();
+    File file = new File (fileErrorlog);
+    FileInputStream is = null;
+    BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+    String lineinput = "";
+
+
 
     static AccessEvent getAnEvent() throws IOException {
-        Process process = Runtime.getRuntime()
-        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        AccessEvent accessEvent = new AccessEvent();
+        FileInputStream is = new FileInputStream(is);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         String line = reader.readLine();
-        return new AccessEvent(new ObjectMapper().readValue(line, HashMap.class));
+        draftMonitoring.runtime.getEventService().sendEventBean(accessEvent, "AccessEvent");
+
     }
 
     static String formatDate(long timestampInMillis) {
