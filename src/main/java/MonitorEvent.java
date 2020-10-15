@@ -17,56 +17,50 @@ public class MonitorEvent {
 
     public static void main (String [] args) throws Exception {
         System.out.println("Please wait while I'm configuring the Event Processor... ");
-        new EPAdapter().execute("get-user-access-event", "select * from AccessEvent(loggInCommand=true)").
+        new EPAdapter().execute("get-user-error-event", "select * from AccessEvent").
                 addListener( (newData, __, ___, ____) -> {
-                    System.out.println(newData[0].get("clientIpAddress") + " Message: " + newData[0].get("message")
-                            + " attempted to log in at " + newData[0].get("errorTimeStamp"));
+                    System.out.println(newData[0].get("userName") + " " + newData[0].get("accepted") + " Code: " + newData[0].get("httpStatusCode")
+                            + " attempted to log in at " + newData[0].get("timeStamp"));
         });
 
         new EPAdapter().execute("create-last-3-event-window",
-                "@public create window LastEvents.win:length(200) as AccessEvent");
+                "@public create window LastEvents.win:time(10) as AccessEvent");
 
-        new EPAdapter().execute("fill-window", "insert into LastEvents select * from AccessEvent(loggInCommand=true)");
+        new EPAdapter().execute("fill-window", "insert into LastEvents select * from AccessEvent(accepted=false)");
 
         new EPAdapter().execute("count-consecutive-failures", "@public insert into ConsecutiveFailureCount " +
-                "select clientIpAddress, errorTimeStamp, count(*) as counter from LastEvents group by clientIpAddress");
+                "select userName, timeStamp, httpStatusCode, count(*) as counter from LastEvents group by userName");
                 
         new EPAdapter().execute("get-alert", "insert into Alert " +
-            "select * from ConsecutiveFailureCount(counter % 3 = 0)").
+            "select * from ConsecutiveFailureCount(counter >= 3)").
             addListener((newData, __, ___, ____) -> {
-                System.out.println("Alert: By " + newData[0].get("errorTimeStamp") + " " + newData[0].get("clientIpAddress")
+                System.out.println("Alert: By " + newData[0].get("timeStamp") + " " + newData[0].get("userName")
                         + " has many consecutive failed attempts!");
         });
-        // AccessEvent newEvent = getAnEvent();
-        // String lastTimeStamp = newEvent.getErrorTimeStamp();
-        // while (true) {
-        //     newEvent = getAnEvent();
-        //     if (newEvent.getErrorTimeStamp() == lastTimeStamp) continue;
-        //     lastTimeStamp = newEvent.getErrorTimeStamp();
-        //     EPAdapter.runtime.getEventService().sendEventBean(newEvent, "AccessEvent");
-        // }
 
-        System.out.println("Read file [" + fileErrorlog + "]");
+        System.out.println("Read file [" + fileAccesslog + "]");
         int numberOfRecoredLog = 0;
+        ArrayList<AccessEvent> httpLogEvents = null;
         while (true) {
-            ArrayList<AccessEvent> httpLogEvents = null;
             try {
                 httpLogEvents = getAnEvent();
             } catch (IOException e) {
                 e.printStackTrace();
             }
             int numberOfCurrentLog = httpLogEvents.size();
-            if (numberOfRecoredLog < numberOfCurrentLog) {
-                for (int i = numberOfRecoredLog; i < numberOfCurrentLog; i++) {
-                    EPAdapter.runtime.getEventService().sendEventBean(httpLogEvents.get(i), "AccessEvent");
+            if (numberOfRecoredLog != 0 ){
+                if (numberOfRecoredLog < numberOfCurrentLog) {
+                    for (int i = numberOfRecoredLog; i < numberOfCurrentLog; i++) {
+                        EPAdapter.runtime.getEventService().sendEventBean(httpLogEvents.get(i), "AccessEvent");
+                    }
                 }
-                numberOfRecoredLog = numberOfCurrentLog;
             }
+            numberOfRecoredLog = numberOfCurrentLog;
         }
     }
 
     static ArrayList<AccessEvent> getAnEvent() throws IOException {
-        File file = new File(fileErrorlog);
+        File file = new File(fileAccesslog);
         FileInputStream fis = null;
         BufferedReader reader = null;
         String lineinput = "";
@@ -76,14 +70,14 @@ public class MonitorEvent {
             reader = new BufferedReader (new InputStreamReader (fis));
 
             while ((lineinput = reader.readLine ())!= null) {
-                result.add(new AccessEvent(lineinput));
-                // newEvent.processErrorLine (lineinput);
-                // EPAdapter.runtime.getEventService().sendEventBean(newEvent, "AccessEvent");  
+                result.add(new AccessEvent(lineinput)); 
             }
             
         } catch (FileNotFoundException e) {
-            System.out.println ("File [" + fileErrorlog + "] does not exist");
-        } 
+            System.out.println ("File [" + fileAccesslog + "] does not exist");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return result;
     }
 }
