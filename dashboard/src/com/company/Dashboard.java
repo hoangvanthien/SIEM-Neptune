@@ -247,47 +247,149 @@ public class Dashboard extends JFrame{
         JFrame frame = new JFrame();
         frame.setTitle("Information Summary Board");
         JPanel panel = new JPanel();
-        frame.setSize(1000, 650);
+        frame.setSize(1000, 700);
         frame.setLocationRelativeTo(null);
         panel.add(Box.createRigidArea(new Dimension(1000, 5)));
         JLabel introduction1 = new JLabel("***Information Summary Board***");
         introduction1.setAlignmentX(panel.CENTER_ALIGNMENT);
         panel.add(introduction1);
-        panel.add(Box.createRigidArea(new Dimension(1000, 50)));
+        panel.add(Box.createRigidArea(new Dimension(1000, 1)));
+
+
+        JLabel text1 = new JLabel("Some information here");
+        panel.add(text1);
+        panel.add(Box.createRigidArea(new Dimension(1000, 1)));
+
+        JLabel text2 = new JLabel("Some information here");
+        panel.add(text2);
+
+        panel.add(Box.createRigidArea(new Dimension(1000, 1)));
+
+        JLabel text3 = new JLabel("Some information here");
+        panel.add(text3);
+
+        panel.add(Box.createRigidArea(new Dimension(1000, 1)));
+
+        JLabel text4 = new JLabel("Some information here");
+        panel.add(text4);
+
+        panel.add(Box.createRigidArea(new Dimension(1000, 1)));
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         JLabel introduction2 = new JLabel("********************************************");
         introduction2.setAlignmentX(panel.CENTER_ALIGNMENT);
         panel.add(introduction2);
         panel.add(Box.createRigidArea(new Dimension(1000, 20)));
 
+        JLabel introduction3 = new JLabel("Access Event Table");
+        JLabel introduction4 = new JLabel("Attack Event Table");
 
         String[] columnNames = new String[]{"Hostname","IP","Time","URL"};
-        Object [][] data =new Object[][] {{"thienhoang","127.0.0.1","10 Octocer 2020","facebook.com"},
-                {"thienhoang","127.0.0.1","10 Octocer 2020","facebook.com"},
-                {"thienhoang","127.0.0.1","10 Octocer 2020","facebook.com"},
-                {"thienhoang","127.0.0.1","10 Octocer 2020","facebook.com"},
-                {"thienhoang","127.0.0.1","10 Octocer 2020","facebook.com"},
-                {"thienhoang","127.0.0.1","10 Octocer 2020","facebook.com"},
-                {"thienhoang","127.0.0.1","10 Octocer 2020","facebook.com"},
-                {"thienhoang","127.0.0.1","10 Octocer 2020","facebook.com"},
-                {"thienhoang","127.0.0.1","10 Octocer 2020","facebook.com"},
-                {"thienhoang","127.0.0.1","10 Octocer 2020","facebook.com"},
-                {"thienhoang","127.0.0.1","10 Octocer 2020","facebook.com"},
-                {"thienhoang","127.0.0.1","10 Octocer 2020","facebook.com"},
-                {"thienhoang","127.0.0.1","10 Octocer 2020","facebook.com"},
-                {"thienhoang","127.0.0.1","10 Octocer 2020","facebook.com"},
-                {"thienhoang","127.0.0.1","10 Octocer 2020","facebook.com"},
-                {"thienhoang","127.0.0.1","10 Octocer 2020","facebook.com"},
-                {"thienhoang","127.0.0.1","10 Octocer 2020","facebook.com"},
-                {"thienhoang","127.0.0.1","10 Octocer 2020","facebook.com"},
-        };
-        JTable table1 = new JTable(data,columnNames);
-        table1.setPreferredScrollableViewportSize(table1.getPreferredSize());
 
-        table1.setFillsViewportHeight(true);
+        DefaultTableModel dtm = new DefaultTableModel(0,0);
+        dtm.setColumnIdentifiers(columnNames);
+        DefaultTableModel dtm2 = new DefaultTableModel(0,0);
+        dtm2.setColumnIdentifiers(columnNames);
+
+        for (int count = 0; count <= 30; count ++)
+        {
+            dtm.addRow(new Object[]{"thienhoang","127.0.0.1","10 Octocer 2020","facebook.com"});
+        }
+        for (int count = 0; count <= 30; count ++)
+        {
+            dtm2.addRow(new Object[]{"hieule","127.0.0.1","10 Octocer 2020","facebook.com"});
+        }
+
+
+        JTable table1 = new JTable();
+        JTable table2 = new JTable();
+
+        table1.setModel(dtm);
+        table2.setModel(dtm2);
+
+
+
         JScrollPane scrollPane1 = new JScrollPane(table1,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-        scrollPane1.setSize(1000,300);
+        JScrollPane scrollPane2 = new JScrollPane(table2,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 
-        panel.add(scrollPane1,BorderLayout.WEST);
+        scrollPane1.setPreferredSize(new Dimension(600,200));
+        scrollPane2.setPreferredSize(new Dimension(600,200));
+
+
+        JPanel decisions = new JPanel();
+        decisions.setLayout(new GridLayout(6, 1, 80, 50));
+        decisions.setBorder(BorderFactory.createEmptyBorder(35, 25, 25, 15));
+
+
+
+
+        JButton buttonBack = new JButton("Back");
+        buttonBack.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent exit) {
+                frame.setVisible(false);
+            }
+        });
+
+        JButton buttonRefresh = new JButton("Refresh");
+        buttonRefresh.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    frame.setVisible(false);
+                    informationBoard();
+                } catch (Exception exception) {
+                    System.out.println("");
+                }
+            }
+        });
+
+
+
+
+        try{
+            JButton d1 = Dashboard.buttonParameters();
+            JButton d2 = Dashboard.buttonAccessEvent();
+            JButton d3 = Dashboard.buttonAttackEvent();
+            JButton d5 = Dashboard.buttonExit();
+
+
+            decisions.add(d1);
+            decisions.add(d2);
+            decisions.add(d3);
+            decisions.add(buttonRefresh);
+            decisions.add(buttonBack);
+            decisions.add(d5);
+
+
+
+        }
+        catch(NullPointerException | NumberFormatException exception){
+            System.out.println("Cancel");
+        }
+
+        JSplitPane jSplitPane1 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,introduction3,scrollPane1);
+        JSplitPane jSplitPane2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,introduction4,scrollPane2);
+        JSplitPane jSplitPane3 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,jSplitPane1,jSplitPane2);
+        JSplitPane jSplitPane4 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,jSplitPane3,decisions);
+
+
+
+
+        panel.add(jSplitPane4);
         frame.add(panel);
         frame.setVisible(true);
 
