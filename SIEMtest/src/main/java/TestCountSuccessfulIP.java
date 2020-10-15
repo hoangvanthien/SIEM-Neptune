@@ -9,14 +9,14 @@ class TestCountSuccessfulIP {
 
         final String regex = "^(\\S+) (\\S+) (\\S+) " + "\\[([\\w:/]+\\s[+\\-]\\d{4})\\] \"(\\S+)" + " (\\S+)\\s*(\\S+)?\\s*\" (\\d{3}) (\\S+)";
 
-        final Pattern pattern = Pattern.compile(regex, Pattern.MULTILINE);
-        final Matcher matcher = pattern.matcher(record);
+        final Pattern pattern = Pattern.compile(regex);
+        final Matcher m = pattern.matcher(record);
 
         HashMap<String, Integer> countIP = new HashMap<String, Integer>();
-        while (matcher.find()) {
+        while (m.find()) {
 
-            String IP = matcher.group(1);
-            String Response = matcher.group(8);
+            String IP = m.group(1);
+            String Response = m.group(8);
             int response = Integer.parseInt(Response);
 
             if (response == 200) {
