@@ -13,6 +13,7 @@ public class EPAdapter {
         compiler = EPCompilerProvider.getCompiler();
         configuration = new Configuration();
         configuration.getCommon().addEventType(AccessEvent.class);
+        configuration.getCommon().addEventType(ErrorEvent.class);
         runtime = EPRuntimeProvider.getDefaultRuntime(configuration);
         arguments = new CompilerArguments(configuration);
         arguments.getPath().add(runtime.getRuntimePath());

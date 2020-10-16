@@ -14,7 +14,7 @@ public class ErrorEvent {
         
         this.timeStamp = parseErrorLog[1].replace("]", "");
         this.clientIpAddress =  (clientIpAndMess[0].replace("]", "")).contains("client") ? clientIpAndMess[0].replace("]", "").split(" ")[1] : "";
-        this.message = clientIpAndMess[1].contains("user") ? "AH" + clientIpAndMess[1] : "";
+        this.message = clientIpAndMess[1].contains("user") ? clientIpAndMess[1].substring(7) : "";
         this.loggInCommand = !this.message.equals("");
         
         if (this.loggInCommand) {
