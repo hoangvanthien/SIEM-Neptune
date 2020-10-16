@@ -14,6 +14,10 @@
     </head>
     <body>
         Welcome to planet Neptune, <?php echo $_SESSION["USERNAME"]?>.<br>
+        <?php if ($_SESSION["USERNAME"] == "thien_hoang") { ?>
+        You can access your secret lounge <a href="/special/code01542.php">here</a>.<br>
+        <?php } ?>
         <a href="logout.php">Log out.</a>
+        
     </body>
 </html>

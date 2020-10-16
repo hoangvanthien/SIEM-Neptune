@@ -25,6 +25,7 @@
          header("location: welcome.php");
          $error = "";
       } else {
+         header("HTTP/1.0 401 Unauthorized");
          $error = "Wrong username or password!";
          error_log("Neptune: Failed login for username " . $username . " and password (md5 hashed) " . md5($password));
       }
