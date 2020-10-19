@@ -101,8 +101,8 @@ public class Dashboard extends JFrame {
         parameters1.setLayout(new GridLayout(2, 2));
         JLabel x = new JLabel(" X: ");
         JLabel y = new JLabel(" Y: ");
-        JTextField xTextField = new JTextField("  X",3);
-        JTextField yTextField = new JTextField("  Y",3);
+        JTextField xTextField = new JTextField("",3);
+        JTextField yTextField = new JTextField("",3);
         parameters1.add(x);
         parameters1.add(xTextField);
         parameters1.add(y);
@@ -132,9 +132,11 @@ public class Dashboard extends JFrame {
                 String b = null;
                 a = xTextField.getText();
                 b = yTextField.getText();
+                a = printEnterAgain("X",a);
+                b = printEnterAgain("Y",b);
+
                 displayX.setText(a);
                 displayY.setText(b);
-                System.out.println("Current x is");
             }
         });
         c.fill = GridBagConstraints.HORIZONTAL;
@@ -192,7 +194,7 @@ public class Dashboard extends JFrame {
         // Complete set up for dashboard
         panel.add(jSplitPane7);
         dashboard.add(panel);
-        dashboard.setVisible(true);
+          dashboard.setVisible(true);
     }
     // Check parameters is numeric or not
     public static boolean isNumeric(String str){
@@ -230,6 +232,16 @@ public class Dashboard extends JFrame {
         return d1;
     }
     // Create print parameters again dialog
+
+    public static String printEnterAgain(String object,String variable){
+        if((!isNumeric(variable) || Integer.parseInt(variable)<0) || variable == null ){
+            variable = null;
+            System.out.println("Your " + object + " is invalid please enter again");
+        }
+        return variable;
+    }
+
+
     public static String printEnterAgainDialog(String object){
         String variable = JOptionPane.showInputDialog(dashboard,"Please enter your desired " + object);
         while((!isNumeric(variable) || Integer.parseInt(variable)<0) && variable != null ){
@@ -256,11 +268,13 @@ public class Dashboard extends JFrame {
         d2.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(
-                        dashboard,
-                        "Print Access Event Table and Alert to file" ,
-                        "Print",
-                        JOptionPane.INFORMATION_MESSAGE);
+//                JOptionPane.showMessageDialog(
+//                        dashboard,
+//                        "Print Access Event Table and Alert to file" ,
+//                        "Print",
+//                        JOptionPane.INFORMATION_MESSAGE);
+
+                System.out.println("Print Access Event Table and Alert to file" );
             }
         });
         return d2;
@@ -270,12 +284,14 @@ public class Dashboard extends JFrame {
         JButton d3 = new JButton("Print Attack Event");
         d3.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(
-                        dashboard,
-                        "Print Attack Event Table and Alert to file" ,
-                        "Print",
-                        JOptionPane.INFORMATION_MESSAGE);
+          public void actionPerformed(ActionEvent e) {
+//                JOptionPane.showMessageDialog(
+//                        dashboard,
+//                        "Print Attack Event Table and Alert to file" ,
+//                        "Print",
+//                        JOptionPane.INFORMATION_MESSAGE);
+                System.out.println("Print Access Event Table and Alert to file" );
+
             }
         });
         return d3;
