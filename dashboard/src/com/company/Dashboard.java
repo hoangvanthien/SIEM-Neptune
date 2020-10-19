@@ -1,4 +1,5 @@
 package com.company;
+
 import javax.print.attribute.standard.JobMediaSheetsCompleted;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -8,13 +9,19 @@ import javax.swing.text.Highlighter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
+
 public class Dashboard extends JFrame {
+
     public static JFrame dashboard;
-//    final static Color HILIT_COLOR = Color.LIGHT_GRAY;
-//    final static Color ERROR_COLOR = Color.PINK;
-//    final static String CANCEL_ACTION = "cancel-search";
+    public static JTextArea textArea;
+    public static JScrollPane jScrollPane3;
+    //    final static Color HILIT_COLOR = Color.LIGHT_GRAY;
+    //    final static Color ERROR_COLOR = Color.PINK;
+    //    final static String CANCEL_ACTION = "cancel-search";
+
     public static void main(String[] args) {
         Dashboard dashboards = new Dashboard();
 //        // Some features in the future
@@ -121,12 +128,13 @@ public class Dashboard extends JFrame {
         setPara.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-               String a = null;
-               String b = null;
-               a = xTextField.getText();
-               b = yTextField.getText();
-               displayX.setText(a);
-               displayY.setText(b);
+                String a = null;
+                String b = null;
+                a = xTextField.getText();
+                b = yTextField.getText();
+                displayX.setText(a);
+                displayY.setText(b);
+                System.out.println("Current x is");
             }
         });
         c.fill = GridBagConstraints.HORIZONTAL;
@@ -153,7 +161,7 @@ public class Dashboard extends JFrame {
         // Create text field and text area
         JButton searchButton = new JButton("Search");
         JTextField textField = new JTextField(20);
-        JTextArea textArea = new JTextArea(6,20);
+        JTextArea textArea = new JTextArea("Team Nepturn \n", 5,20);
         JLabel status = new JLabel();
         JLabel jLabel1 = new JLabel();
         textArea.setColumns(20);
@@ -161,6 +169,13 @@ public class Dashboard extends JFrame {
         textArea.setWrapStyleWord(true);
         textArea.setEditable(false);
         JScrollPane jScrollPane3 = new JScrollPane();
+
+        jScrollPane3.setPreferredSize(new Dimension(500,10));
+        PrintStream printStream = new PrintStream(new CustomOutputStream(textArea));
+        System.setOut(printStream);
+        System.setErr(printStream);
+
+
 //        jLabel1.setText("Event text to search:");
 //        GroupLayout layout = new GroupLayout(getContentPane());
 //        getContentPane().setLayout(layout);
@@ -231,6 +246,10 @@ public class Dashboard extends JFrame {
         }
         return variable;
     }
+
+
+
+
     // Create print Access Event table to file button
     public static JButton buttonAccessEvent(){
         JButton d2 = new JButton("Print Access Event");
