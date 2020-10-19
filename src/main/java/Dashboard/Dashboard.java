@@ -1,4 +1,4 @@
-package com.company;
+package Dashboard;
 import javax.print.attribute.standard.JobMediaSheetsCompleted;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
