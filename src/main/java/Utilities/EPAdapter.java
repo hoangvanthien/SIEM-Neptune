@@ -1,3 +1,7 @@
+package Utilities;
+
+import CEP.WebserverMonitor.ApacheAccessLogEvent;
+import CEP.WebserverMonitor.NeptuneErrorLogEvent;
 import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.compiler.client.CompilerArguments;
@@ -8,15 +12,19 @@ import com.espertech.esper.runtime.client.*;
 
 public class EPAdapter {
 
-    public EPAdapter() {
-        if (compiler != null && configuration != null && runtime != null) return;
+    public static void setup() {
         compiler = EPCompilerProvider.getCompiler();
         configuration = new Configuration();
-        configuration.getCommon().addEventType(AccessEvent.class);
-        configuration.getCommon().addEventType(ErrorEvent.class);
+        configuration.getCommon().addEventType("AEL_Event", NeptuneErrorLogEvent.class);
+        configuration.getCommon().addEventType("AAL_Event", ApacheAccessLogEvent.class);
         runtime = EPRuntimeProvider.getDefaultRuntime(configuration);
         arguments = new CompilerArguments(configuration);
         arguments.getPath().add(runtime.getRuntimePath());
+    }
+
+    public EPAdapter() {
+        if (compiler != null && configuration != null && runtime != null) return;
+        setup();
     }
 
     public EPAdapter execute(String name, String statement) throws EPCompileException, EPDeployException {

@@ -1,8 +1,11 @@
+package CEP.WebserverMonitor;
+
+import Utilities.EPAdapter;
 import com.espertech.esper.compiler.client.EPCompileException;
 import com.espertech.esper.runtime.client.EPDeployException;
 
-public class ErrorEventStatement {
-    public ErrorEventStatement(int alertPeriod, int consecutiveFailed) throws EPCompileException, EPDeployException, EPCompileException, EPDeployException {
+public class NeptuneErrorLogCEP {
+    public NeptuneErrorLogCEP(int alertPeriod, int consecutiveFailed) throws EPCompileException, EPDeployException {
 
         new EPAdapter().execute("get-user-error-event", "select * from ErrorEvent(loggInCommand=true)").
                 addListener( (newData, __, ___, ____) -> {
