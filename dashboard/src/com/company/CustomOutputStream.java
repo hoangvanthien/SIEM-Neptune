@@ -18,6 +18,6 @@ public class CustomOutputStream extends OutputStream {
         // scrolls the text area to the end of data
         textArea.setCaretPosition(textArea.getDocument().getLength());
         // keeps the textArea up to date
-        textArea.update(textArea.getGraphics());
+          textArea.update(textArea.getGraphics());
     }
 }

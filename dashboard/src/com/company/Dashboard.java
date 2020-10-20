@@ -2,8 +2,11 @@ package com.company;
 
 import javax.print.attribute.standard.JobMediaSheetsCompleted;
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
 import java.awt.*;
@@ -13,17 +16,32 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
 
-public class Dashboard extends JFrame {
+public class Dashboard extends JFrame implements DocumentListener {
 
     public static JFrame dashboard;
-    public static JTextArea textArea;
+    public JTextArea textArea;
     public static JScrollPane jScrollPane3;
-    //    final static Color HILIT_COLOR = Color.LIGHT_GRAY;
-    //    final static Color ERROR_COLOR = Color.PINK;
-    //    final static String CANCEL_ACTION = "cancel-search";
+    final static Color HILIT_COLOR = Color.LIGHT_GRAY;
+    final static Color ERROR_COLOR = Color.PINK;
+    final static String CANCEL_ACTION = "cancel-search";
+    final static String ENTER_ACTION = "enter-search";
+    public static int count= 0;
+    public JTextField textField;
 
-    public static void main(String[] args) {
-        Dashboard dashboards = new Dashboard();
+
+    final Color entryBg;
+    final Highlighter hilit;
+    final Highlighter.HighlightPainter painter;
+
+    public static void main(String[] args) throws Exception {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                UIManager.put("swing.boldMetal", Boolean.FALSE);
+                Dashboard dashboards = new Dashboard();
+            }
+        });
+
 //        // Some features in the future
 //        DefaultHighlighter hilit = new DefaultHighlighter();
 //        DefaultHighlighter.HighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter();
@@ -162,26 +180,55 @@ public class Dashboard extends JFrame {
         buttons.add(b5);
         // Create text field and text area
         JButton searchButton = new JButton("Search");
-        JTextField textField = new JTextField(20);
-        JTextArea textArea = new JTextArea("Team Nepturn \n", 5,20);
+        textField = new JTextField(20);
+        textArea = new JTextArea("Team Nepturn \n",5,20);
+
         JLabel status = new JLabel();
         JLabel jLabel1 = new JLabel();
-        textArea.setColumns(20);
+
+
         textArea.setLineWrap(true);
         textArea.setWrapStyleWord(true);
-        textArea.setEditable(false);
-        JScrollPane jScrollPane3 = new JScrollPane();
+        textArea.setEditable(true);
 
-        jScrollPane3.setPreferredSize(new Dimension(500,10));
+
+        JScrollPane jScrollPane3 = new JScrollPane(textArea,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         PrintStream printStream = new PrintStream(new CustomOutputStream(textArea));
         System.setOut(printStream);
         System.setErr(printStream);
 
 
+        //Create Search box
+        hilit = new DefaultHighlighter();
+        painter = new DefaultHighlighter.DefaultHighlightPainter(HILIT_COLOR);
+        textArea.setHighlighter(hilit);
+
+        entryBg = textField.getBackground();
+        textField.getDocument().addDocumentListener(this);
+
+        InputMap im = textField.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ActionMap am = textField.getActionMap();
+        im.put(KeyStroke.getKeyStroke("ESCAPE"),CANCEL_ACTION);
+        am.put(CANCEL_ACTION,new CancelAction());
+
+        InputMap im2 = textField.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ActionMap am2 = textField.getActionMap();
+        im2.put(KeyStroke.getKeyStroke("ENTER"),ENTER_ACTION);
+        am2.put(ENTER_ACTION,new addCount());
+
+
+
+        // Enable drag and drop
+        table1.setDragEnabled(true);
+        table2.setDragEnabled(true);
+        textArea.setDragEnabled(true);
+        textField.setDragEnabled(true);
+
+
+
 //        jLabel1.setText("Event text to search:");
 //        GroupLayout layout = new GroupLayout(getContentPane());
 //        getContentPane().setLayout(layout);
-        jScrollPane3.add(textArea);
         // Create Split Pane
         JSplitPane parameters3 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,parameters1,parameters2);
         JSplitPane jSplitPane1 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,table1Title,scrollPane1);
@@ -189,7 +236,7 @@ public class Dashboard extends JFrame {
         JSplitPane jSplitPane3 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,jSplitPane1,jSplitPane2);
         JSplitPane jSplitPane4 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,parameters3,buttons);
         JSplitPane jSplitPane5 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,jSplitPane3,jSplitPane4);
-        JSplitPane jSplitPane6 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,textField,textArea);
+        JSplitPane jSplitPane6 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,textField,jScrollPane3);
         JSplitPane jSplitPane7 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,jSplitPane5,jSplitPane6);
         // Complete set up for dashboard
         panel.add(jSplitPane7);
@@ -303,8 +350,8 @@ public class Dashboard extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    dashboard.setVisible(false);
-                    Dashboard dashboards = new Dashboard();
+                    dashboard.revalidate();
+                    dashboard.repaint();
                 } catch (Exception exception) {
                     System.out.println("");
                 }
@@ -324,5 +371,71 @@ public class Dashboard extends JFrame {
         return d5;
     }
     public void search(){
+        hilit.removeAllHighlights();
+        String s = textField.getText();
+        if (s.length()<=0){
+            return;
+        }
+
+        String content = textArea.getText();
+        int index = content.indexOf(s,count);
+        if (index>=0){
+            try{
+                int end = index + s.length();
+                hilit.addHighlight(index,end,painter);
+                textArea.setCaretPosition(end);
+                textField.setBackground(entryBg);
+            }
+            catch (BadLocationException e){
+                e.printStackTrace();
+            }
+        }
+        else {
+            textField.setBackground(ERROR_COLOR);
+        }
     }
+
+
+
+    class addCount extends AbstractAction{
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String s = textField.getText();
+            String content = textArea.getText();
+            count = content.indexOf(s,count) + s.length();
+            search();
+        }
+
+    }
+
+
+
+    @Override
+    public void insertUpdate(DocumentEvent e) {
+        search();
+    }
+
+    @Override
+    public void removeUpdate(DocumentEvent e) {
+        search();
+    }
+
+    @Override
+    public void changedUpdate(DocumentEvent e) {
+
+    }
+    class CancelAction extends AbstractAction{
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            count = 0;
+            hilit.removeAllHighlights();
+            textField.setText("");
+            textField.setBackground(entryBg);
+        }
+    }
+
+
+
+
 }
