@@ -1,4 +1,4 @@
-package Dashboard;
+package com.company;
 
 import javax.swing.*;
 import java.io.IOException;

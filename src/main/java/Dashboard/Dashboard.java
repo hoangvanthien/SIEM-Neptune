@@ -1,9 +1,11 @@
-package Dashboard;
+package com.company;
 
 import javax.print.attribute.standard.JobMediaSheetsCompleted;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.BadLocationException;
@@ -12,6 +14,8 @@ import javax.swing.text.Highlighter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
@@ -32,25 +36,41 @@ public class Dashboard extends JFrame implements DocumentListener {
     final Color entryBg;
     final Highlighter hilit;
     final Highlighter.HighlightPainter painter;
+    public DefaultTableModel dtm,dtm2,dtm3;
+    public JTable table1;
+    public int x,y;
 
     public static void main(String[] args) throws Exception {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                UIManager.put("swing.boldMetal", Boolean.FALSE);
-                Dashboard dashboards = new Dashboard();
-            }
-        });
 
-//        // Some features in the future
-//        DefaultHighlighter hilit = new DefaultHighlighter();
-//        DefaultHighlighter.HighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter();
+        Dashboard dashboards = new Dashboard();
+        for (int count = 0; count <= 30; count ++) {
+            dashboards.dtm2.addRow(new Object[]{"thienhoang","127.0.0.1","10 Octocer 2020","facebook.com"});
+        }
+        for (int count = 0; count <= 30; count ++) {
+            dashboards.dtm3.addRow(new Object[]{"thienhoang","127.0.0.1","10 Octocer 2020","facebook.com"});
+        }
+
+        for (int count = 0; count <= 30; count ++) {
+            dashboards.dtm.addRow(new Object[]{"thienhoang","127.0.0.1","10 Octocer 2020","facebook.com","Hello"});
+            Thread.sleep(1000);
+        }
+
+
+//        SwingUtilities.invokeLater(new Runnable() {
+//            @Override
+//            public void run() {
+//                UIManager.put("swing.boldMetal", Boolean.FALSE);
+//                Dashboard dashboards = new Dashboard();
+//            }
+//        });
+
+//
     }
     public Dashboard() {
         // Set up dashboard properties
         JFrame dashboard = new JFrame();
         dashboard.setTitle("Dashboard");
-        dashboard.setSize(1000, 750);
+        dashboard.setSize(1000, 800);
         dashboard.setLocationRelativeTo(null);
         try{
             dashboard.setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -89,41 +109,82 @@ public class Dashboard extends JFrame implements DocumentListener {
         dLine.setAlignmentX(panel.CENTER_ALIGNMENT);
         panel.add(dLine);
         panel.add(Box.createRigidArea(new Dimension(1000, 10)));
+
         // Create table 1
-        JLabel table1Title = new JLabel("Access Event Table");
-        String[] columnNames1 = new String[]{"usersName","httpStatusCode","timeStamp","accepted"};
-        DefaultTableModel dtm = new DefaultTableModel(0,0);
+
+        JLabel table1Title = new JLabel(" Access Log Table");
+        String[] columnNames1 = new String[]{" Time "," Client Address "," URL "," Status Code "," Request Method "};
+        dtm = new DefaultTableModel(0,0);
         dtm.setColumnIdentifiers(columnNames1);
-        for (int count = 0; count <= 30; count ++) {
-            dtm.addRow(new Object[]{"thienhoang","127.0.0.1","10 Octocer 2020","facebook.com"});
-        }
-        JTable table1 = new JTable();
+
+        table1 = new JTable();
         table1.setModel(dtm);
+
         // Create table 2
-        JLabel table1Title2 = new JLabel("Access Event Table");
-        String[] columnNames2 = new String[]{"message","clientIpAddess","timeStamp","loggInCommand"};
-        DefaultTableModel dtm2 = new DefaultTableModel(0,0);
+
+        JLabel table1Title2 = new JLabel(" Error Log Table");
+        String[] columnNames2 = new String[]{" Time "," Client Address "," URL "," Log Message"};
+        dtm2 = new DefaultTableModel(0,0);
         dtm2.setColumnIdentifiers(columnNames2);
-        for (int count = 0; count <= 30; count ++) {
-            dtm2.addRow(new Object[]{"hieule","127.0.0.1","10 Octocer 2020","facebook.com"});
-        }
+
         JTable table2 = new JTable();
         table2.setModel(dtm2);
+
+
+
+        JLabel table1Title3 = new JLabel(" Port Scan Table");
+        String[] columnNames3 = new String[]{" Time "," Client Address "," Port "," Port Status"};
+        dtm3 = new DefaultTableModel(0,0);
+        dtm3.setColumnIdentifiers(columnNames3);
+
+        JTable table3 = new JTable();
+        table3.setModel(dtm3);
+
+
+
+
+        ;
+
+
         // Add table to scrollPane
+
         JScrollPane scrollPane1 = new JScrollPane(table1,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+        scrollPane1.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
+            public void adjustmentValueChanged(AdjustmentEvent e) {
+                e.getAdjustable().setValue(e.getAdjustable().getMaximum());
+            }
+        });
+
         JScrollPane scrollPane2 = new JScrollPane(table2,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-        scrollPane1.setPreferredSize(new Dimension(600,200));
-        scrollPane2.setPreferredSize(new Dimension(600,200));
+        scrollPane2.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
+            public void adjustmentValueChanged(AdjustmentEvent e) {
+                e.getAdjustable().setValue(e.getAdjustable().getMaximum());
+            }
+        });
+
+        scrollPane1.setPreferredSize(new Dimension(600,135));
+        scrollPane2.setPreferredSize(new Dimension(600,135));
+        JScrollPane scrollPane4 = new JScrollPane(table3,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+        scrollPane4.setPreferredSize(new Dimension(600,135));
+        scrollPane4.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
+            public void adjustmentValueChanged(AdjustmentEvent e) {
+                e.getAdjustable().setValue(e.getAdjustable().getMaximum());
+            }
+        });
+
+
         // Create change parameters panel
+
+
         JPanel parameters1 = new JPanel();
         parameters1.setLayout(new GridLayout(2, 2));
-        JLabel x = new JLabel(" X: ");
-        JLabel y = new JLabel(" Y: ");
+        JLabel xLabel = new JLabel(" X: ");
+        JLabel yLabel = new JLabel(" Y: ");
         JTextField xTextField = new JTextField("",3);
         JTextField yTextField = new JTextField("",3);
-        parameters1.add(x);
+        parameters1.add(xLabel);
         parameters1.add(xTextField);
-        parameters1.add(y);
+        parameters1.add(yLabel);
         parameters1.add(yTextField);
         JPanel parameters2 = new JPanel();
         parameters2.setLayout(new GridBagLayout());
@@ -152,9 +213,11 @@ public class Dashboard extends JFrame implements DocumentListener {
                 b = yTextField.getText();
                 a = printEnterAgain("X",a);
                 b = printEnterAgain("Y",b);
-
+                x = Integer.parseInt(a);
+                y = Integer.parseInt(b);
                 displayX.setText(a);
                 displayY.setText(b);
+
             }
         });
         c.fill = GridBagConstraints.HORIZONTAL;
@@ -179,6 +242,7 @@ public class Dashboard extends JFrame implements DocumentListener {
         buttons.add(b4);
         buttons.add(b5);
         // Create text field and text area
+
         JButton searchButton = new JButton("Search");
         textField = new JTextField(20);
         textArea = new JTextArea("Team Nepturn \n",5,20);
@@ -199,6 +263,7 @@ public class Dashboard extends JFrame implements DocumentListener {
 
 
         //Create Search box
+
         hilit = new DefaultHighlighter();
         painter = new DefaultHighlighter.DefaultHighlightPainter(HILIT_COLOR);
         textArea.setHighlighter(hilit);
@@ -231,13 +296,22 @@ public class Dashboard extends JFrame implements DocumentListener {
 //        getContentPane().setLayout(layout);
         // Create Split Pane
         JSplitPane parameters3 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,parameters1,parameters2);
+
         JSplitPane jSplitPane1 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,table1Title,scrollPane1);
         JSplitPane jSplitPane2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,table1Title2,scrollPane2);
+
+
+
         JSplitPane jSplitPane3 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,jSplitPane1,jSplitPane2);
         JSplitPane jSplitPane4 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,parameters3,buttons);
-        JSplitPane jSplitPane5 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,jSplitPane3,jSplitPane4);
+
+        JSplitPane jSplitPane8 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,table1Title3,scrollPane4);
+        JSplitPane jSplitPane9 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,jSplitPane3,jSplitPane8);
+
+        JSplitPane jSplitPane5 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,jSplitPane9,jSplitPane4);
         JSplitPane jSplitPane6 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,textField,jScrollPane3);
         JSplitPane jSplitPane7 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,jSplitPane5,jSplitPane6);
+
         // Complete set up for dashboard
         panel.add(jSplitPane7);
         dashboard.add(panel);
@@ -255,25 +329,27 @@ public class Dashboard extends JFrame implements DocumentListener {
     }
     // Change parameters button
     public static JButton buttonParameters(){
-        JButton d1 = new JButton("Change parameters");
+        JButton d1 = new JButton("Print Console Note");
         d1.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e0) {
-                try{
-                    String x = printEnterAgainDialog("x");
-                    String y = printEnterAgainDialog("y");
-                    int i = Integer.parseInt(x);
-                    int j = Integer.parseInt(y);
-                    JOptionPane.showMessageDialog(
-                            null,
-                            "Allert condition: X number of faiures in Y minutes"+ "\n" +
-                                    "Current X is : " + i + "\n" +
-                                    "Current Y is : " + j,
-                            "Parameters Properties",
-                            JOptionPane.INFORMATION_MESSAGE);
-                }catch(Exception exception){
-                    System.out.println("Dialog has been closed");
-                }
+//                try{
+//                    String x = printEnterAgainDialog("x");
+//                    String y = printEnterAgainDialog("y");
+//                    int i = Integer.parseInt(x);
+//                    int j = Integer.parseInt(y);
+//                    JOptionPane.showMessageDialog(
+//                            null,
+//                            "Allert condition: X number of faiures in Y minutes"+ "\n" +
+//                                    "Current X is : " + i + "\n" +
+//                                    "Current Y is : " + j,
+//                            "Parameters Properties",
+//                            JOptionPane.INFORMATION_MESSAGE);
+//                }catch(Exception exception){
+//                    System.out.println("Dialog has been closed");
+//                }
+                System.out.println("Print Console Note to file" );
+
             }
         });
         return d1;
@@ -434,5 +510,8 @@ public class Dashboard extends JFrame implements DocumentListener {
             textField.setBackground(entryBg);
         }
     }
+
+
+
 
 }
