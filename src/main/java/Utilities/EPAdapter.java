@@ -35,6 +35,16 @@ public class EPAdapter {
         return this;
     }
 
+    /**
+     * Fire-and-forget execution
+     * @param statements
+     */
+    public static void quickExecute(String... statements) throws EPCompileException, EPDeployException {
+        for (String statement : statements) {
+            new EPAdapter().execute("Neptune"+(int)(Math.random()*100000), statement);
+        }
+    }
+
     public void addListener(UpdateListener listener) {
         this.statement.addListener(listener);
     }
