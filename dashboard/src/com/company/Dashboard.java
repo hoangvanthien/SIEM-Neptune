@@ -4,6 +4,8 @@ import javax.print.attribute.standard.JobMediaSheetsCompleted;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.BadLocationException;
@@ -12,6 +14,8 @@ import javax.swing.text.Highlighter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
@@ -32,15 +36,26 @@ public class Dashboard extends JFrame implements DocumentListener {
     final Color entryBg;
     final Highlighter hilit;
     final Highlighter.HighlightPainter painter;
+    public DefaultTableModel dtm,dtm2;
+    public JTable table1;
+
 
     public static void main(String[] args) throws Exception {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                UIManager.put("swing.boldMetal", Boolean.FALSE);
-                Dashboard dashboards = new Dashboard();
-            }
-        });
+
+        Dashboard dashboards = new Dashboard();
+        for (int count = 0; count <= 30; count ++) {
+            dashboards.dtm.addRow(new Object[]{"thienhoang","127.0.0.1","10 Octocer 2020","facebook.com"});
+            Thread.sleep(1000);
+        }
+
+
+//        SwingUtilities.invokeLater(new Runnable() {
+//            @Override
+//            public void run() {
+//                UIManager.put("swing.boldMetal", Boolean.FALSE);
+//                Dashboard dashboards = new Dashboard();
+//            }
+//        });
 
 //        // Some features in the future
 //        DefaultHighlighter hilit = new DefaultHighlighter();
@@ -50,7 +65,7 @@ public class Dashboard extends JFrame implements DocumentListener {
         // Set up dashboard properties
         JFrame dashboard = new JFrame();
         dashboard.setTitle("Dashboard");
-        dashboard.setSize(1000, 750);
+        dashboard.setSize(1000, 760);
         dashboard.setLocationRelativeTo(null);
         try{
             dashboard.setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -92,25 +107,35 @@ public class Dashboard extends JFrame implements DocumentListener {
         // Create table 1
         JLabel table1Title = new JLabel("Access Event Table");
         String[] columnNames1 = new String[]{"usersName","httpStatusCode","timeStamp","accepted"};
-        DefaultTableModel dtm = new DefaultTableModel(0,0);
+        dtm = new DefaultTableModel(0,0);
         dtm.setColumnIdentifiers(columnNames1);
-        for (int count = 0; count <= 30; count ++) {
-            dtm.addRow(new Object[]{"thienhoang","127.0.0.1","10 Octocer 2020","facebook.com"});
-        }
-        JTable table1 = new JTable();
+
+        table1 = new JTable();
         table1.setModel(dtm);
+
         // Create table 2
-        JLabel table1Title2 = new JLabel("Access Event Table");
+        JLabel table1Title2 = new JLabel("Attack Event Table");
         String[] columnNames2 = new String[]{"message","clientIpAddess","timeStamp","loggInCommand"};
-        DefaultTableModel dtm2 = new DefaultTableModel(0,0);
+        dtm2 = new DefaultTableModel(0,0);
         dtm2.setColumnIdentifiers(columnNames2);
         for (int count = 0; count <= 30; count ++) {
             dtm2.addRow(new Object[]{"hieule","127.0.0.1","10 Octocer 2020","facebook.com"});
         }
         JTable table2 = new JTable();
         table2.setModel(dtm2);
+
+
+        ;
+
+
         // Add table to scrollPane
-        JScrollPane scrollPane1 = new JScrollPane(table1,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+        JScrollPane scrollPane1 = new JScrollPane(table1,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollPane1.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
+            public void adjustmentValueChanged(AdjustmentEvent e) {
+                e.getAdjustable().setValue(e.getAdjustable().getMaximum());
+            }
+        });
+
         JScrollPane scrollPane2 = new JScrollPane(table2,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         scrollPane1.setPreferredSize(new Dimension(600,200));
         scrollPane2.setPreferredSize(new Dimension(600,200));
@@ -255,25 +280,27 @@ public class Dashboard extends JFrame implements DocumentListener {
     }
     // Change parameters button
     public static JButton buttonParameters(){
-        JButton d1 = new JButton("Change parameters");
+        JButton d1 = new JButton("Print Console Note");
         d1.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e0) {
-                try{
-                    String x = printEnterAgainDialog("x");
-                    String y = printEnterAgainDialog("y");
-                    int i = Integer.parseInt(x);
-                    int j = Integer.parseInt(y);
-                    JOptionPane.showMessageDialog(
-                            null,
-                            "Allert condition: X number of faiures in Y minutes"+ "\n" +
-                                    "Current X is : " + i + "\n" +
-                                    "Current Y is : " + j,
-                            "Parameters Properties",
-                            JOptionPane.INFORMATION_MESSAGE);
-                }catch(Exception exception){
-                    System.out.println("Dialog has been closed");
-                }
+//                try{
+//                    String x = printEnterAgainDialog("x");
+//                    String y = printEnterAgainDialog("y");
+//                    int i = Integer.parseInt(x);
+//                    int j = Integer.parseInt(y);
+//                    JOptionPane.showMessageDialog(
+//                            null,
+//                            "Allert condition: X number of faiures in Y minutes"+ "\n" +
+//                                    "Current X is : " + i + "\n" +
+//                                    "Current Y is : " + j,
+//                            "Parameters Properties",
+//                            JOptionPane.INFORMATION_MESSAGE);
+//                }catch(Exception exception){
+//                    System.out.println("Dialog has been closed");
+//                }
+                System.out.println("Print Console Note to file" );
+
             }
         });
         return d1;
