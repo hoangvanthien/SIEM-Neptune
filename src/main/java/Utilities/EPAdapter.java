@@ -1,7 +1,6 @@
 package Utilities;
 
-import CEP.WebserverMonitor.ApacheAccessLogEvent;
-import CEP.WebserverMonitor.NeptuneErrorLogEvent;
+import CEP.WebserverMonitor.*;
 import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.compiler.client.CompilerArguments;
@@ -15,11 +14,21 @@ public class EPAdapter {
     public static void setup() {
         compiler = EPCompilerProvider.getCompiler();
         configuration = new Configuration();
-        configuration.getCommon().addEventType("AEL_Event", NeptuneErrorLogEvent.class);
+        configuration.getCommon().addEventType("NEL_Event", NeptuneErrorLogEvent.class);
+        configuration.getCommon().addEventType("NEL_"+ FailedLoginEvent.class.getSimpleName(), FailedLoginEvent.class.getName());
+        configuration.getCommon().addEventType("NEL_"+ FailedRegisterDuplicateEvent.class.getSimpleName(), FailedRegisterDuplicateEvent.class.getName());
+        configuration.getCommon().addEventType("NEL_"+ SuccessChangePasswordEvent.class.getSimpleName(), SuccessChangePasswordEvent.class.getName());
         configuration.getCommon().addEventType("AAL_Event", ApacheAccessLogEvent.class);
         runtime = EPRuntimeProvider.getDefaultRuntime(configuration);
         arguments = new CompilerArguments(configuration);
         arguments.getPath().add(runtime.getRuntimePath());
+    }
+
+    public static void destroy() {
+        compiler = null;
+        configuration = null;
+        runtime = null;
+        arguments = null;
     }
 
     public EPAdapter() {
@@ -33,6 +42,20 @@ public class EPAdapter {
         EPDeployment deployment = runtime.getDeploymentService().deploy(epCompiled);
         this.statement = runtime.getDeploymentService().getStatement(deployment.getDeploymentId(), name);
         return this;
+    }
+
+    public EPAdapter execute(String statement) throws EPCompileException, EPDeployException {
+        return execute("Neptune"+(int)(Math.random()*100000), statement);
+    }
+
+    /**
+     * Fire-and-forget execution
+     * @param statements
+     */
+    public static void quickExecute(String... statements) throws EPCompileException, EPDeployException {
+        for (String statement : statements) {
+            new EPAdapter().execute("Neptune"+(int)(Math.random()*100000), statement);
+        }
     }
 
     public void addListener(UpdateListener listener) {

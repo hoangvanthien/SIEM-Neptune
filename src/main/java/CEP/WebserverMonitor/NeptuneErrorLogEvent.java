@@ -1,6 +1,7 @@
 package CEP.WebserverMonitor;
 
-import java.io.BufferedInputStream;
+import com.espertech.esper.common.client.EventBean;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayDeque;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Queue;
 import java.util.regex.Matcher;
@@ -32,24 +34,26 @@ public class NeptuneErrorLogEvent {
      * referer: http://192.168.56.101/special/
      */
 
-    private static final String LOG_ENTRY_PATTERN = "^\\[([\\w:. ]+)] " +
+    public static final String REGEXP = "^\\[([\\w:. ]+)] " +
             "\\[([\\w:]+)] " +
             "\\[pid (\\d+)] " +
             "\\[client ([\\d.]+):(\\d+)] " +
             "Neptune: (.+), " +
-            "referer: https?://[\\w.]+/([\\w/]+)$";
+            "referer: https?://[\\w.]+/([\\w/.]+)$";
     private static final int TIMESTAMP_GROUP = 1;
-    private static final int CLIENT_ADDRESS_GROUP = 3;
-    private static final int CLIENT_PORT_GROUP = 4;
-    private static final int LOG_MESSAGE_GROUP = 5;
-    private static final int URL_GROUP = 6;
-    private static final Pattern PATTERN = Pattern.compile(LOG_ENTRY_PATTERN);
+    private static final int CLIENT_ADDRESS_GROUP = 4;
+    private static final int CLIENT_PORT_GROUP = 5;
+    private static final int LOG_MESSAGE_GROUP = 6;
+    private static final int URL_GROUP = 7;
+    private static final Pattern PATTERN = Pattern.compile(REGEXP);
 
-    public NeptuneErrorLogEvent(String logline) {
+    public NeptuneErrorLogEvent() {}
+
+    public NeptuneErrorLogEvent(String logline) throws Exception {
         Matcher m = PATTERN.matcher(logline);
         if (!m.find()) {
-            System.err.println("Cannot parse log line " + logline);
-            throw new RuntimeException("Error parsing log line");
+//            System.err.println("Cannot parse log line " + logline);
+            throw new Exception("Not Neptune log entry");
         }
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("E MMM dd HH:mm:ss.SSSSSS yyyy", Locale.ENGLISH);
@@ -57,6 +61,10 @@ public class NeptuneErrorLogEvent {
         long timestamp = dateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
         lastTimestamp = timestamp;
         init(timestamp, m.group(CLIENT_ADDRESS_GROUP), m.group(LOG_MESSAGE_GROUP), m.group(URL_GROUP));
+    }
+
+    public NeptuneErrorLogEvent(EventBean bean) {
+        init((Long)bean.get("timestamp"), ""+bean.get("clientAddress"), ""+bean.get("message"), ""+bean.get("url"));
     }
 
     protected void init(long timestamp, String clientAddress, String message, String url) {
@@ -77,9 +85,14 @@ public class NeptuneErrorLogEvent {
         Process process = Runtime.getRuntime().exec("tail -n " + batchSize + " /var/log/apache2/error.log");
         BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
         String line = "";
-        long now = lastTimestamp;
+        long now = lastTimestamp == 0 ? System.currentTimeMillis()-5000 : lastTimestamp;
         while ((line = in.readLine()) != null) {
-            NeptuneErrorLogEvent event = new NeptuneErrorLogEvent(line);
+            NeptuneErrorLogEvent event = null;
+            try {
+                event = new NeptuneErrorLogEvent(line);
+            } catch (Exception ignored) {
+
+            }
             if (now < lastTimestamp) queue.add(event);
         }
         if (queue.isEmpty()) return null;
@@ -87,7 +100,7 @@ public class NeptuneErrorLogEvent {
     }
 
     private static long lastTimestamp;
-    private static int batchSize = 1;
+    private static int batchSize = 5;
     private static Queue<NeptuneErrorLogEvent> queue = new ArrayDeque<>();
 
     public String getClientAddress() {

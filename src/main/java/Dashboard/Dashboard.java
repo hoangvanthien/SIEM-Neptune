@@ -34,19 +34,32 @@ public class Dashboard extends JFrame implements DocumentListener {
     final Highlighter.HighlightPainter painter;
 
     public static void main(String[] args) throws Exception {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                UIManager.put("swing.boldMetal", Boolean.FALSE);
-                Dashboard dashboards = new Dashboard();
-            }
-        });
+        Dashboard dashboards = new Dashboard();
+        for (int count = 0; count <= 30; count ++) {
+            dashboards.dtm.addRow(new Object[]{"thienhoang","127.0.0.1","10 Octocer 2020","facebook.com"});
+            Thread.sleep(1000);
+        }
+//        SwingUtilities.invokeLater(new Runnable() {
+//            @Override
+//            public void run() {
+//                UIManager.put("swing.boldMetal", Boolean.FALSE);
+//                try {
+//
+//
+//
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        });
 
 //        // Some features in the future
 //        DefaultHighlighter hilit = new DefaultHighlighter();
 //        DefaultHighlighter.HighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter();
     }
-    public Dashboard() {
+
+    public DefaultTableModel dtm, dtm2;
+    public Dashboard() throws InterruptedException {
         // Set up dashboard properties
         JFrame dashboard = new JFrame();
         dashboard.setTitle("Dashboard");
@@ -92,21 +105,21 @@ public class Dashboard extends JFrame implements DocumentListener {
         // Create table 1
         JLabel table1Title = new JLabel("Access Event Table");
         String[] columnNames1 = new String[]{"usersName","httpStatusCode","timeStamp","accepted"};
-        DefaultTableModel dtm = new DefaultTableModel(0,0);
+        dtm = new DefaultTableModel(0,0);
         dtm.setColumnIdentifiers(columnNames1);
-        for (int count = 0; count <= 30; count ++) {
-            dtm.addRow(new Object[]{"thienhoang","127.0.0.1","10 Octocer 2020","facebook.com"});
-        }
+//        for (int count = 0; count <= 30; count ++) {
+//            dtm.addRow(new Object[]{"thienhoang","127.0.0.1","10 Octocer 2020","facebook.com"});
+//        }
         JTable table1 = new JTable();
         table1.setModel(dtm);
         // Create table 2
         JLabel table1Title2 = new JLabel("Access Event Table");
         String[] columnNames2 = new String[]{"message","clientIpAddess","timeStamp","loggInCommand"};
-        DefaultTableModel dtm2 = new DefaultTableModel(0,0);
+        dtm2 = new DefaultTableModel(0,0);
         dtm2.setColumnIdentifiers(columnNames2);
-        for (int count = 0; count <= 30; count ++) {
-            dtm2.addRow(new Object[]{"hieule","127.0.0.1","10 Octocer 2020","facebook.com"});
-        }
+//        for (int count = 0; count <= 30; count ++) {
+//            dtm2.addRow(new Object[]{"hieule","127.0.0.1","10 Octocer 2020","facebook.com"});
+//        }
         JTable table2 = new JTable();
         table2.setModel(dtm2);
         // Add table to scrollPane
@@ -405,7 +418,6 @@ public class Dashboard extends JFrame implements DocumentListener {
             count = content.indexOf(s,count) + s.length();
             search();
         }
-
     }
 
 
