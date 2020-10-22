@@ -53,11 +53,11 @@ public class ApacheAccessLogEvent {
 
     private static final Pattern PATTERN = Pattern.compile (LOG_ENTRY_PATTERN);
 
-    public ApacheAccessLogEvent(String logline) {
+    public ApacheAccessLogEvent(String logline) throws Exception {
         Matcher m = PATTERN.matcher (logline);
         if (!m.find()) {
             System.err.println("Cannot parse log line " + logline);
-            throw new RuntimeException("Error parsing log line");
+            throw new Exception("Error parsing log line");
         }
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MMM/yyyy:HH:mm:ss Z", Locale.ENGLISH);
@@ -90,7 +90,12 @@ public class ApacheAccessLogEvent {
         String line = "";
         long now = lastTimestamp;
         while ((line = in.readLine()) != null) {
-            ApacheAccessLogEvent event = new ApacheAccessLogEvent(line);
+            ApacheAccessLogEvent event = null;
+            try {
+                event = new ApacheAccessLogEvent(line);
+            } catch (Exception ignored) {
+            
+            }
             if (now < lastTimestamp) queue.add(event);
         }
         if (queue.isEmpty()) return null;
