@@ -48,8 +48,7 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
     public static void main(String[] args) throws Exception {
 
         dashboards = new Dashboard();
-        Monitor monitor = new Monitor();
-        monitor.execute(dashboards.xList[index], dashboards.yList[index],dashboards);
+        Monitor.execute();
 
     }
 
