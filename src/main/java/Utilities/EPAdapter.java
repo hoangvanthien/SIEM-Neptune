@@ -1,5 +1,6 @@
 package Utilities;
 
+import CEP.PortScanDetector.*;
 import CEP.WebserverMonitor.ApacheAccessLogEvent;
 import CEP.WebserverMonitor.NeptuneErrorLogEvent;
 import com.espertech.esper.common.client.EPCompiled;
@@ -17,6 +18,11 @@ public class EPAdapter {
         configuration = new Configuration();
         configuration.getCommon().addEventType("AEL_Event", NeptuneErrorLogEvent.class);
         configuration.getCommon().addEventType("AAL_Event", ApacheAccessLogEvent.class);
+        configuration.getCommon().addEventType("TCPPacket", TCPPacket.class);
+        configuration.getCommon().addEventType("VerticalPortScanAlert",VerticalPortScanAlert.class);
+        configuration.getCommon().addEventType("HorizontalPortScanAlert",HorizontalPortScanAlert.class);
+        configuration.getRuntime().getLogging().setEnableExecutionDebug(false);
+        configuration.getRuntime().getLogging().setEnableTimerDebug(false);
         runtime = EPRuntimeProvider.getDefaultRuntime(configuration);
         arguments = new CompilerArguments(configuration);
         arguments.getPath().add(runtime.getRuntimePath());

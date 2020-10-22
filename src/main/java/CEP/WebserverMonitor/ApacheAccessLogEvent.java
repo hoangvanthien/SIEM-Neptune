@@ -38,7 +38,7 @@ public class ApacheAccessLogEvent {
             "(\\S+) " +
             "\\[([\\w:/]+\\s[+-]\\d{4})\\] " +
             "\"([A-Z]+) " +
-            "\\/([\\w_.]+) " +
+            "(\\/[\\/\\w-_.]*) " +
             "([\\w/.]+)\" " +
             "(\\d{3}) " +
             "(\\d+) " +
@@ -94,7 +94,7 @@ public class ApacheAccessLogEvent {
             try {
                 event = new ApacheAccessLogEvent(line);
             } catch (Exception ignored) {
-            
+
             }
             if (now < lastTimestamp) queue.add(event);
         }
