@@ -20,7 +20,7 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
 
-public class Dashboard extends JFrame implements DocumentListener {
+public class Dashboard extends JFrame implements DocumentListener, ActionListener {
 
     public static JFrame dashboard;
     public static JScrollPane jScrollPane3;
@@ -30,8 +30,7 @@ public class Dashboard extends JFrame implements DocumentListener {
     final static String ENTER_ACTION = "enter-search";
     public static int count= 0;
     public static Dashboard dashboards;
-
-
+    public static int index = 0;
 
     public JTextField textField;
     public JTextArea textArea;
@@ -39,21 +38,18 @@ public class Dashboard extends JFrame implements DocumentListener {
     public JTable table1;
     public int x=10;
     public int y=3;
-
-
+    public int[] xList = {10,10,10,10,10};
+    public int[] yList = {3,3,3,3,3};
 
     final Color entryBg;
     final Highlighter hilit;
     final Highlighter.HighlightPainter painter;
 
-
-
     public static void main(String[] args) throws Exception {
 
         dashboards = new Dashboard();
         Monitor monitor = new Monitor();
-        monitor.execute(dashboards.x, dashboards.y,dashboards);
-
+        monitor.execute(dashboards.xList[index], dashboards.yList[index],dashboards);
 
     }
 
@@ -65,7 +61,6 @@ public class Dashboard extends JFrame implements DocumentListener {
         dashboard.setTitle("Dashboard");
         dashboard.setSize(1000, 800);
         dashboard.setLocationRelativeTo(null);
-
         try{
             dashboard.setDefaultCloseOperation(EXIT_ON_CLOSE);
         } catch (NullPointerException e){
@@ -85,7 +80,6 @@ public class Dashboard extends JFrame implements DocumentListener {
         panel.add(Box.createRigidArea(new Dimension(900, 15)));
         panel.add(introduction);
         panel.add(Box.createRigidArea(new Dimension(1000, 1)));
-
         JLabel dLine = new JLabel("********************************************");
         dLine.setAlignmentX(panel.CENTER_ALIGNMENT);
         panel.add(dLine);
@@ -97,14 +91,11 @@ public class Dashboard extends JFrame implements DocumentListener {
         String[] columnNames1 = new String[]{" Time "," Client Address "," URL "," Status Code "," Request Method "};
         dtm = new DefaultTableModel(0,0);
         dtm.setColumnIdentifiers(columnNames1);
-
         table1 = new JTable();
         table1.setModel(dtm);
-
         table1.getColumnModel().getColumn(0).setPreferredWidth(120);
         table1.getColumnModel().getColumn(2).setPreferredWidth(50);
         table1.getColumnModel().getColumn(3).setPreferredWidth(50);
-
 
         // Create table 2
 
@@ -112,7 +103,6 @@ public class Dashboard extends JFrame implements DocumentListener {
         String[] columnNames2 = new String[]{" Time "," Client Address "," URL "," Log Message"};
         dtm2 = new DefaultTableModel(0,0);
         dtm2.setColumnIdentifiers(columnNames2);
-
         JTable table2 = new JTable();
         table2.setModel(dtm2);
 
@@ -122,17 +112,14 @@ public class Dashboard extends JFrame implements DocumentListener {
         String[] columnNames3 = new String[]{" Time "," Client Address "," Port "," Port Status"};
         dtm3 = new DefaultTableModel(0,0);
         dtm3.setColumnIdentifiers(columnNames3);
-
         JTable table3 = new JTable();
         table3.setModel(dtm3);
-
 
         // Add table to scrollPane
 
         JScrollPane scrollPane1 = new JScrollPane(table1,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         JScrollPane scrollPane2 = new JScrollPane(table2,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         JScrollPane scrollPane4 = new JScrollPane(table3,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-
 
         // Make scroll always at bottom
 
@@ -141,14 +128,11 @@ public class Dashboard extends JFrame implements DocumentListener {
                 e.getAdjustable().setValue(e.getAdjustable().getMaximum());
             }
         });
-
         scrollPane2.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
             public void adjustmentValueChanged(AdjustmentEvent e) {
                 e.getAdjustable().setValue(e.getAdjustable().getMaximum());
             }
         });
-
-
         scrollPane4.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
             public void adjustmentValueChanged(AdjustmentEvent e) {
                 e.getAdjustable().setValue(e.getAdjustable().getMaximum());
@@ -161,25 +145,20 @@ public class Dashboard extends JFrame implements DocumentListener {
         scrollPane2.setPreferredSize(new Dimension(600,135));
         scrollPane4.setPreferredSize(new Dimension(600,135));
 
-
-
         // Create change parameters panel
-
 
         JPanel parameters1 = new JPanel();
         parameters1.setLayout(new GridLayout(2, 2));
-
         JLabel xLabel = new JLabel(" X: ");
         JLabel yLabel = new JLabel(" Y: ");
-
         JTextField xTextField = new JTextField("",3);
         JTextField yTextField = new JTextField("",3);
-
+        xTextField.setToolTipText("Raise an alert when X events of the chosen type occur in Y seconds");
+        yTextField.setToolTipText("Raise an alert when X events of the chosen type occur in Y seconds");
         parameters1.add(xLabel);
         parameters1.add(xTextField);
         parameters1.add(yLabel);
         parameters1.add(yTextField);
-
         JPanel parameters2 = new JPanel();
         parameters2.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
@@ -190,7 +169,6 @@ public class Dashboard extends JFrame implements DocumentListener {
         c.gridx = 0;
         c.gridy = 0;
         parameters2.add(displayX,c);
-
         JTextField displayY = new JTextField(3);
         displayY.setEditable(false);
         c.weightx = 0.5;
@@ -216,25 +194,25 @@ public class Dashboard extends JFrame implements DocumentListener {
                 b = yTextField.getText();
                 a = printEnterAgain("X",a);
                 b = printEnterAgain("Y",b);
-                x = Integer.parseInt(a);
-                y = Integer.parseInt(b);
-                displayX.setText(a);
-                displayY.setText(b);
-
+                if(isNumeric(a)&&isNumeric(b)) {
+                    xList[index] = Integer.parseInt(a);
+                    yList[index] = Integer.parseInt(b);
+                }
+                displayX.setText(Integer.toString(xList[index]));
+                displayY.setText(Integer.toString(yList[index]));
             }
         });
+        setPara.setToolTipText("Raise an alert when X events of the chosen type occur in Y seconds");
         parameters2.add(setPara,c);
 
-
-
-
-
         // Create panel for buttons
+
         JPanel buttons = new JPanel();
         buttons.setLayout(new GridLayout(5, 1, 120, 50));
         buttons.setBorder(BorderFactory.createEmptyBorder(45, 15, 45, 15));
 
         // Add buttons
+
         JButton b1 = Dashboard.buttonParameters();
         JButton b2 = new JButton("Information Summary");
         JButton b3 = Dashboard.buttonAttackEvent();
@@ -245,7 +223,6 @@ public class Dashboard extends JFrame implements DocumentListener {
         buttons.add(b3);
         buttons.add(b4);
         buttons.add(b5);
-
 
         // Listeners for buttton information summary
 
@@ -263,42 +240,31 @@ public class Dashboard extends JFrame implements DocumentListener {
         JButton searchButton = new JButton("Search");
         textField = new JTextField(20);
         textArea = new JTextArea("Team Nepturn \n",5,20);
-
         JLabel status = new JLabel();
         JLabel jLabel1 = new JLabel();
-
-
         textArea.setLineWrap(true);
         textArea.setWrapStyleWord(true);
         textArea.setEditable(true);
-
-
         JScrollPane jScrollPane3 = new JScrollPane(textArea,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         PrintStream printStream = new PrintStream(new CustomOutputStream(textArea));
         System.setOut(printStream);
         System.setErr(printStream);
-
 
         //Create Search box
 
         hilit = new DefaultHighlighter();
         painter = new DefaultHighlighter.DefaultHighlightPainter(HILIT_COLOR);
         textArea.setHighlighter(hilit);
-
         entryBg = textField.getBackground();
         textField.getDocument().addDocumentListener(this);
-
         InputMap im = textField.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
         ActionMap am = textField.getActionMap();
         im.put(KeyStroke.getKeyStroke("ESCAPE"),CANCEL_ACTION);
         am.put(CANCEL_ACTION,new CancelAction());
-
         InputMap im2 = textField.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
         ActionMap am2 = textField.getActionMap();
         im2.put(KeyStroke.getKeyStroke("ENTER"),ENTER_ACTION);
         am2.put(ENTER_ACTION,new addCount());
-
-
 
         // Enable drag and drop
 
@@ -307,24 +273,31 @@ public class Dashboard extends JFrame implements DocumentListener {
         textArea.setDragEnabled(true);
         textField.setDragEnabled(true);
 
+        // Add Drop Down Menu
 
+        String[] eventString = { "BadRequestEvent", "NotFoundEvent", "PortSYNEvent", "FailedLoginEvent", "FailedRegisterDuplicateEvent" };
+        JComboBox eventsList = new JComboBox(eventString);
+        eventsList.setSelectedIndex(0);
+        eventsList.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                index = eventsList.getSelectedIndex();
+                displayX.setText(Integer.toString(xList[index]));
+                displayY.setText(Integer.toString(yList[index]));
+            }
+        });
 
         // Create Split Pane
 
         JSplitPane parameters3 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,parameters1,parameters2);
-
         JSplitPane jSplitPane1 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,table1Title,scrollPane1);
         JSplitPane jSplitPane2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,table1Title2,scrollPane2);
-
-
-
         JSplitPane jSplitPane3 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,jSplitPane1,jSplitPane2);
         JSplitPane jSplitPane4 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,parameters3,buttons);
-
+        JSplitPane jSplitPane10 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,eventsList,jSplitPane4);
         JSplitPane jSplitPane8 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,table1Title3,scrollPane4);
         JSplitPane jSplitPane9 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,jSplitPane3,jSplitPane8);
-
-        JSplitPane jSplitPane5 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,jSplitPane9,jSplitPane4);
+        JSplitPane jSplitPane5 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,jSplitPane9,jSplitPane10);
         JSplitPane jSplitPane6 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,textField,jScrollPane3);
         JSplitPane jSplitPane7 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,jSplitPane5,jSplitPane6);
 
@@ -333,7 +306,6 @@ public class Dashboard extends JFrame implements DocumentListener {
         panel.add(jSplitPane7);
         dashboard.add(panel);
         dashboard.setVisible(true);
-
     }
 
     // Check parameters is numeric or not
@@ -356,7 +328,6 @@ public class Dashboard extends JFrame implements DocumentListener {
             @Override
             public void actionPerformed(ActionEvent e0) {
                 System.out.println("Print Console Note to file" );
-
             }
         });
         return d1;
@@ -380,7 +351,6 @@ public class Dashboard extends JFrame implements DocumentListener {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println("Print All Tables to file" );
-
             }
         });
         return d3;
@@ -417,7 +387,6 @@ public class Dashboard extends JFrame implements DocumentListener {
         return d5;
     }
 
-
     // Search function for search box
 
     public void search(){
@@ -426,7 +395,6 @@ public class Dashboard extends JFrame implements DocumentListener {
         if (s.length()<=0){
             return;
         }
-
         String content = textArea.getText();
         int index = content.indexOf(s,count);
         if (index>=0){
@@ -445,6 +413,10 @@ public class Dashboard extends JFrame implements DocumentListener {
         }
     }
 
+    @Override
+    public void actionPerformed(ActionEvent e) {
+    }
+
     // Add Count for search
 
     class addCount extends AbstractAction{
@@ -455,7 +427,6 @@ public class Dashboard extends JFrame implements DocumentListener {
             count = content.indexOf(s,count) + s.length();
             search();
         }
-
     }
 
     // Document Event
@@ -472,13 +443,11 @@ public class Dashboard extends JFrame implements DocumentListener {
 
     @Override
     public void changedUpdate(DocumentEvent e) {
-
     }
 
     // Cancel Action Search box
 
     class CancelAction extends AbstractAction{
-
         @Override
         public void actionPerformed(ActionEvent e) {
             count = 0;
@@ -504,6 +473,5 @@ public class Dashboard extends JFrame implements DocumentListener {
 //                }catch(Exception exception){
 //                    System.out.println("Dialog has been closed");
 //                }
-
 
 }
