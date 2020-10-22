@@ -1,5 +1,8 @@
 package CEP.WebserverMonitor;
 
+import Utilities.Misc;
+import com.espertech.esper.common.client.EventBean;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -18,13 +21,13 @@ import java.util.regex.Pattern;
 
 public class ApacheAccessLogEvent {
 
-    private String clientAddress;
+    private String clientAddress; //
     private long timestamp;
-    private String url;
-    private String httpStatusCode;
-    private String requestMethod;
+    private String url; //
+    private String httpStatusCode; //
+    private String requestMethod; //
     private boolean badRequest;
-    private String timeFormatted;
+    private String timeFormatted; //
 
     /**
      * 192.168.56.1 - - [16/Oct/2020:13:17:15 +0700] "POST /login.php HTTP/1.1" 401 1031
@@ -33,12 +36,12 @@ public class ApacheAccessLogEvent {
      **/
 
     // ([\d.]+) (\S+) (\S+) \[([\w:/]+\s[+-]\d{4})\] "([A-Z]+) \/([\w_.]+) ([\w/.]+)" (\d{3}) (\d+) "([^"]+)" "([^"]+)"
-    private static final String LOG_ENTRY_PATTERN = "^([\\d.]+) " +
+    public static final String REGEXP = "^([\\d.]+) " +
             "(\\S+) " +
             "(\\S+) " +
             "\\[([\\w:/]+\\s[+-]\\d{4})\\] " +
             "\"([A-Z]+) " +
-            "\\/([\\w_.]+) " +
+            "(\\/[\\/\\w-_.]*) " +
             "([\\w/.]+)\" " +
             "(\\d{3}) " +
             "(\\d+) " +
@@ -51,7 +54,9 @@ public class ApacheAccessLogEvent {
     private static final int URL_GROUP = 6;
     private static final int REQUEST_METHOD_GROUP = 5;
 
-    private static final Pattern PATTERN = Pattern.compile (LOG_ENTRY_PATTERN);
+    private static final Pattern PATTERN = Pattern.compile (REGEXP);
+
+    public ApacheAccessLogEvent() {}
 
     public ApacheAccessLogEvent(String logline) {
         Matcher m = PATTERN.matcher (logline);
@@ -68,6 +73,10 @@ public class ApacheAccessLogEvent {
         init(timestamp, m.group(CLIENT_ADDRESS_GROUP), m.group(REQUEST_METHOD_GROUP), m.group(HTTP_STATUS_CODE_GROUP), m.group(URL_GROUP));
     }
 
+    public ApacheAccessLogEvent(EventBean bean) {
+        init((Long)bean.get("timestamp"), ""+bean.get("clientAddress"), ""+bean.get("requestMethod"), ""+bean.get("httpStatusCode"), ""+bean.get("url"));
+    }
+
     protected void init(long timestamp, String clientAddress, String requestMethod, String httpStatusCode, String url) {
         this.timestamp = timestamp;
         this.clientAddress = clientAddress;
@@ -75,10 +84,7 @@ public class ApacheAccessLogEvent {
         this.httpStatusCode = httpStatusCode;
         this.url = url;
         this.badRequest = httpStatusCode.startsWith("4");
-        Timestamp ts = new Timestamp(timestamp);
-        Date date = new Date(ts.getTime());
-        DateFormat f = new SimpleDateFormat("dd/MMM/yyyy' 'HH:mm:ss");
-        this.timeFormatted = f.format(date);
+        this.timeFormatted = Misc.formatTime(timestamp);
     }
 
     public static ApacheAccessLogEvent nextEvent() throws IOException {
@@ -88,7 +94,7 @@ public class ApacheAccessLogEvent {
         Process process = Runtime.getRuntime().exec("tail -n " + batchSize + " /var/log/apache2/access.log");
         BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
         String line = "";
-        long now = lastTimestamp;
+        long now = lastTimestamp == 0 ? System.currentTimeMillis()-5000 : lastTimestamp;
         while ((line = in.readLine()) != null) {
             ApacheAccessLogEvent event = new ApacheAccessLogEvent(line);
             if (now < lastTimestamp) queue.add(event);

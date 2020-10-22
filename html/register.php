@@ -21,6 +21,9 @@
             $error_msg = "Passwords mismatched.";
             error_log("Neptune: Failed to register for ".$username.". Two passwords entered mismatched.");
             // die();
+        } else {
+            $error_msg = "Registered successfully! (but of course this is just a demo webserver so no new account is created)";
+            error_log("Neptune: New account created for ".$username.".");
         }
     
     }
@@ -41,6 +44,7 @@
             <button type="submit"> Submit </button>
             <div><?php echo $error_msg; ?></div>
         </form>
+        <p>Already had an account? <a href="/login.php">Login</a> here.</p>
     </body>
     <script>
       if ( window.history.replaceState ) {

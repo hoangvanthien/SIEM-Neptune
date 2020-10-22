@@ -14,13 +14,13 @@ public class Monitor {
     public static void main (String [] args) throws Exception {
         System.out.println("Please wait while I'm configuring the Event Processor... ");
         new ApacheAccessLogCEP(10,3);
-//        new NeptuneErrorLogCEP(10,3);
-
+        NeptuneErrorLogCEP.setup(10,3);
+        System.out.println("Listening to events...");
         while (true) {
             ApacheAccessLogEvent aal = ApacheAccessLogEvent.nextEvent();
             if (aal != null) sendEvent(aal, "AAL_Event");
-//            NeptuneErrorLogEvent nel = NeptuneErrorLogEvent.nextEvent();
-//            if (nel != null) sendEvent(nel, "NEL_Event");
+            NeptuneErrorLogEvent nel = NeptuneErrorLogEvent.nextEvent();
+            if (nel != null) sendEvent(nel, "NEL_Event");
         }
     }
     static <EventType> void sendEvent(EventType event, String eventType) {

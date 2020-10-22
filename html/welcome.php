@@ -17,7 +17,8 @@
         <?php if ($_SESSION["USERNAME"] == "thien_hoang") { ?>
         You can access your secret lounge <a href="/special/code01542.php">here</a>.<br>
         <?php } ?>
-        <a href="logout.php">Log out.</a>
+        <a href="/logout.php">Log out.</a><br>
+        <a href="/change_password.php">Change your password</a><br>
         
     </body>
 </html>
