@@ -1,17 +1,18 @@
 package CEP.WebserverMonitor;
 
+import Dashboard.Dashboard;
 import Utilities.EPAdapter;
 import com.espertech.esper.compiler.client.EPCompileException;
 import com.espertech.esper.runtime.client.EPDeployException;
 
 public class NeptuneErrorLogCEP {
-    public NeptuneErrorLogCEP(int alertPeriod, int consecutiveFailed) throws EPCompileException, EPDeployException {
+    public NeptuneErrorLogCEP(int alertPeriod, int consecutiveFailed, Dashboard dashboards) throws EPCompileException, EPDeployException {
 
         new EPAdapter().execute("get-user-error-event", "select * from ErrorEvent(loggInCommand=true)").
                 addListener( (newData, __, ___, ____) -> {
-                    System.out.println(newData[0].get("clientIpAddress") + " message " + newData[0].get("message")
-                            + " attempted to log in at " + newData[0].get("timeStamp"));
-        });
+                    dashboards.dtm2.addRow(new Object[]{newData[0].get("timeStamp"),newData[0].get("clientIpAddress"),newData[0].get("url"),newData[0].get("message")});
+
+                });
 
         new EPAdapter().execute("create-last-3-event-window",
                 "@public create window LastErrorEvents.win:time(" + alertPeriod + ") as ErrorEvent");
