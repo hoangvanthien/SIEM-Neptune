@@ -1,5 +1,6 @@
 package CEP.WebserverMonitor;
 
+import Dashboard.Dashboard;
 import Utilities.EPAdapter;
 import Utilities.Misc;
 import com.espertech.esper.common.client.EventBean;
