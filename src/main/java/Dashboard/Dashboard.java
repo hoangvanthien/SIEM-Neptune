@@ -129,22 +129,32 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
 
         // Make scroll always at bottom
 
-        scrollPane1.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
-            public void adjustmentValueChanged(AdjustmentEvent e) {
-                e.getAdjustable().setValue(e.getAdjustable().getMaximum());
-            }
-        });
-        scrollPane2.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
-            public void adjustmentValueChanged(AdjustmentEvent e) {
-                e.getAdjustable().setValue(e.getAdjustable().getMaximum());
-            }
-        });
-        scrollPane4.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
-            public void adjustmentValueChanged(AdjustmentEvent e) {
-                e.getAdjustable().setValue(e.getAdjustable().getMaximum());
-            }
-        });
+       AtomicInteger verticalScrollBarMaximumValue = new AtomicInteger(scrollPane1.getVerticalScrollBar().getMaximum());
+        scrollPane1.getVerticalScrollBar().addAdjustmentListener(
+                e -> {
+                    if ((verticalScrollBarMaximumValue.get() - e.getAdjustable().getMaximum()) == 0)
+                        return;
+                    e.getAdjustable().setValue(e.getAdjustable().getMaximum());
+                    verticalScrollBarMaximumValue.set(scrollPane1.getVerticalScrollBar().getMaximum());
+                });
 
+        AtomicInteger verticalScrollBarMaximumValue2 = new AtomicInteger(scrollPane2.getVerticalScrollBar().getMaximum());
+        scrollPane2.getVerticalScrollBar().addAdjustmentListener(
+                e -> {
+                    if ((verticalScrollBarMaximumValue2.get() - e.getAdjustable().getMaximum()) == 0)
+                        return;
+                    e.getAdjustable().setValue(e.getAdjustable().getMaximum());
+                    verticalScrollBarMaximumValue2.set(scrollPane2.getVerticalScrollBar().getMaximum());
+                });
+
+        AtomicInteger verticalScrollBarMaximumValue4 = new AtomicInteger(scrollPane4.getVerticalScrollBar().getMaximum());
+        scrollPane4.getVerticalScrollBar().addAdjustmentListener(
+                e -> {
+                    if ((verticalScrollBarMaximumValue4.get() - e.getAdjustable().getMaximum()) == 0)
+                        return;
+                    e.getAdjustable().setValue(e.getAdjustable().getMaximum());
+                    verticalScrollBarMaximumValue4.set(scrollPane4.getVerticalScrollBar().getMaximum());
+                });
         // Set size of tables
 
         scrollPane1.setPreferredSize(new Dimension(600,135));
@@ -262,23 +272,23 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
         b2.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(dtm.getRowCount()==0) {
+               if(dtm.getRowCount()==0) {
                     System.out.println("Access Log Table : No Event" );
                 }
                 else{
-                    System.out.println("Access Log Table :" + dtm.getRowCount() + " Events From " + dtm.getValueAt(0,dtm.getColumnCount()-3) + " to "+  dtm.getValueAt(dtm.getRowCount()-1,dtm.getColumnCount()-3));
+                    System.out.println("Access Log Table :" + dtm.getRowCount() + " Events From " + dtm.getValueAt(0,0) + " to "+  dtm.getValueAt(dtm.getRowCount()-1,0));
                 }
                 if(dtm2.getRowCount()==0) {
                     System.out.println("Event Log Table : No Event" );
                 }
                 else{
-                    System.out.println("Event Log Table :" + dtm2.getRowCount() + " Events From " + dtm2.getValueAt(0,dtm2.getColumnCount()-2) + " to "+  dtm2.getValueAt(dtm2.getRowCount()-1,dtm2.getColumnCount()-2));
+                    System.out.println("Event Log Table :" + dtm2.getRowCount() + " Events From " + dtm2.getValueAt(0,0) + " to "+  dtm2.getValueAt(dtm2.getRowCount()-1,0));
                 }
                 if(dtm3.getRowCount()==0) {
                     System.out.println("Port Scan Table : No Event" );
                 }
                 else{
-                    System.out.println("Port Scan Table :" + dtm3.getRowCount() + " Events From " + dtm3.getValueAt(0,dtm3.getColumnCount()-2) + " to "+  dtm3.getValueAt(dtm3.getRowCount()-1,dtm3.getColumnCount()-2));
+                    System.out.println("Port Scan Table :" + dtm3.getRowCount() + " Events From " + dtm3.getValueAt(0,0) + " to "+  dtm3.getValueAt(dtm3.getRowCount()-1,0));
                 }
 
 
