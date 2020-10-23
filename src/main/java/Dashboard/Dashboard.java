@@ -4,6 +4,7 @@ import CEP.WebserverMonitor.ApacheAccessLogCEP;
 import CEP.WebserverMonitor.FailedRegisterDuplicateEvent;
 import CEP.WebserverMonitor.Monitor;
 import CEP.WebserverMonitor.NeptuneErrorLogCEP;
+import Utilities.EPAdapter;
 
 import javax.print.attribute.standard.JobMediaSheetsCompleted;
 import javax.swing.*;
@@ -219,6 +220,7 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
                         NeptuneErrorLogCEP.setFailedRegisterDuplicateEvent_period(yList[index]);
                         NeptuneErrorLogCEP.setFailedRegisterDuplicateEvent_threshold(xList[index]);
                 }
+                new EPAdapter();
             }
         });
         setPara.setToolTipText("Raise an alert when X events of the chosen type occur in Y seconds");
@@ -403,6 +405,7 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
                 try {
                     dashboard.revalidate();
                     dashboard.repaint();
+
                 } catch (Exception exception) {
                     System.out.println("");
                 }
