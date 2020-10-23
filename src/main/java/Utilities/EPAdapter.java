@@ -25,6 +25,7 @@ public class EPAdapter {
     }
 
     public static void destroy() {
+        if (runtime != null) runtime.destroy();
         compiler = null;
         configuration = null;
         runtime = null;

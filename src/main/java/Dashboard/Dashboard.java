@@ -5,6 +5,8 @@ import CEP.WebserverMonitor.FailedRegisterDuplicateEvent;
 import CEP.WebserverMonitor.Monitor;
 import CEP.WebserverMonitor.NeptuneErrorLogCEP;
 import Utilities.EPAdapter;
+import com.espertech.esper.compiler.client.EPCompileException;
+import com.espertech.esper.runtime.client.EPDeployException;
 
 import javax.print.attribute.standard.JobMediaSheetsCompleted;
 import javax.swing.*;
@@ -20,6 +22,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
@@ -42,8 +45,8 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
     public JTable table1;
     public int x=10;
     public int y=3;
-    public int[] xList = {10,10,10,10};
-    public int[] yList = {3,3,3,3};
+    public int[] xList = {3,3,3,3};
+    public int[] yList = {10,10,10,10};
 
     final Color entryBg;
     final Highlighter hilit;
@@ -154,8 +157,8 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
         parameters1.setLayout(new GridLayout(2, 2));
         JLabel xLabel = new JLabel(" X: ");
         JLabel yLabel = new JLabel(" Y: ");
-        JTextField xTextField = new JTextField("10",3);
-        JTextField yTextField = new JTextField("3",3);
+        JTextField xTextField = new JTextField(""+xList[0],3);
+        JTextField yTextField = new JTextField(""+yList[0],3);
         xTextField.setToolTipText("Raise an alert when X events of the chosen type occur in Y seconds");
         yTextField.setToolTipText("Raise an alert when X events of the chosen type occur in Y seconds");
         parameters1.add(xLabel);
@@ -184,8 +187,8 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
         c.gridwidth = 2;
         c.gridx = 0;
         c.gridy = 1;
-        displayX.setText("10");
-        displayY.setText("3");
+        displayX.setText(""+xList[0]);
+        displayY.setText(""+yList[0]);
 
         // Set button
 
@@ -207,20 +210,29 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
                 displayY.setText(Integer.toString(yList[index]));
 
                 switch(index) {
-                    case 1:
+                    case 0:
                         ApacheAccessLogCEP.setPeriod(yList[index]);
                         ApacheAccessLogCEP.setThreshold(xList[index]);
-                    case 2:
+                        break;
+                    case 1:
                         NeptuneErrorLogCEP.setFailedLoginEvent_period(yList[index]);
                         NeptuneErrorLogCEP.setFailedLoginEventByUsername_threshold(xList[index]);
-                    case 3:
+                        break;
+                    case 2:
                         NeptuneErrorLogCEP.setFailedLoginEvent_period(yList[index]) ;
                         NeptuneErrorLogCEP.setFailedLoginEventByPassword_threshold(xList[index]);
-                    case 4:
+                        break;
+                    case 3:
                         NeptuneErrorLogCEP.setFailedRegisterDuplicateEvent_period(yList[index]);
                         NeptuneErrorLogCEP.setFailedRegisterDuplicateEvent_threshold(xList[index]);
+                        break;
                 }
-                new EPAdapter();
+                try {
+                    ApacheAccessLogCEP.setup();
+                    NeptuneErrorLogCEP.setup();
+                } catch (EPCompileException | EPDeployException | NoSuchFieldException | IllegalAccessException exception) {
+                    exception.printStackTrace();
+                }
             }
         });
         setPara.setToolTipText("Raise an alert when X events of the chosen type occur in Y seconds");
@@ -314,7 +326,7 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
 
         // Add Drop Down Menu
 
-        String[] eventString = { "AccessEvent", "FailedLoginUsername", "FailedLoginPassword", "FailedRegisterDuplicate"};
+        String[] eventString = { "Bad requests", "Failed logins on\n one username", "Failed logins on\n one password", "Failed registrations from\n one client"};
         JComboBox eventsList = new JComboBox(eventString);
         eventsList.setSelectedIndex(0);
         eventsList.addActionListener(new ActionListener() {
