@@ -48,16 +48,19 @@ public class Monitor {
         // Tell the handle to loop using the listener we created
         try {
             handle.loop(maxPackets, (PacketListener) packet -> {
+                try {
+                    IpV4Packet ipV4Packet = packet.get(IpV4Packet.class);
+                    TcpPacket tcpPacket = ipV4Packet.get(TcpPacket.class);
+                    int port = tcpPacket.getHeader().getSrcPort().valueAsInt();
+                    TCPPacket evt = new TCPPacket(
+                            ipV4Packet.getHeader(),
+                            tcpPacket.getHeader()
+                    );
+                    if (port != 443 && port != 80 && ipV4Packet != null) {
+                        sendEvent(evt, TCPPacket.class.getSimpleName());
+                    }
+                } catch (Exception ignored) {
 
-                IpV4Packet ipV4Packet = packet.get(IpV4Packet.class);
-                TcpPacket tcpPacket = ipV4Packet.get(TcpPacket.class);
-                int port = tcpPacket.getHeader().getSrcPort().valueAsInt();
-                TCPPacket evt = new TCPPacket(
-                        ipV4Packet.getHeader(),
-                        tcpPacket.getHeader()
-                );
-                if (port != 443 && port != 80 && ipV4Packet != null) {
-                    sendEvent(evt, TCPPacket.class.getSimpleName());
                 }
 
                 ApacheAccessLogEvent aal = null;
