@@ -56,7 +56,7 @@ public class Monitor {
                             ipV4Packet.getHeader(),
                             tcpPacket.getHeader()
                     );
-                    if (port != 443 && port != 80 && ipV4Packet != null) {
+                    if (port != 443 && port != 80 && port != 62078) {
                         sendEvent(evt, TCPPacket.class.getSimpleName());
                     }
                 } catch (Exception ignored) {
