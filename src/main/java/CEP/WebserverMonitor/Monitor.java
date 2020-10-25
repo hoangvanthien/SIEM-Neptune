@@ -25,8 +25,8 @@ public class Monitor {
 
         new ApacheAccessLogCEP(10,3);
 //        new NeptuneErrorLogCEP(10,3);
-        new VerticalPortScan(60, 100);
-        new HorizontalPortScan(60, 2);
+        new VerticalPortScan(20, 100);
+        new HorizontalPortScan(60, 2, 10); // set to 2 to test, use 5 or more in production
 
         PcapNetworkInterface device = getNetworkDevice();
         System.out.println(device.getName() + "(" + device.getDescription() + ")");
