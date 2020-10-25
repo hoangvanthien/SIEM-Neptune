@@ -13,14 +13,14 @@ public class VerticalPortScan {
 
         new EPAdapter().execute("get-vertical-port-scan", "insert into VerticalPortScanAlert\n" +
                 "select ipHeader.dstAddr\n" +
-                "from TCPPacket#time_batch(" + alertPeriod + " seconds)\n" +
+                "from TCPPacket#time_batch(" + alertPeriod + " seconds)#expr(oldest_timestamp > newest_timestamp - 10000)\n" +
                 "group by ipHeader.dstAddr\n" +
                 "having count(distinct tcpHeader.dstPort) > " + consecutiveFailed + "");
 
         new EPAdapter().execute("alert-vertical-port-scan", "select * from VerticalPortScanAlert")
                 .addListener((newData, __, ___, ____) -> {
                     InetAddress hostAddr = (InetAddress) newData[0].get("hostAddr");
-                    System.out.println("Alert: IP " + hostAddr.getHostAddress()
+                    System.out.println("Alert a vertical scan: IP " + hostAddr.getHostAddress()
                         + " is under attack!");
         });
     }
