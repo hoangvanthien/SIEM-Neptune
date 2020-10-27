@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class Monitor {
-    private static String fileErrorlog = "/var/log/apache2/error.log";    
+    private static String fileErrorlog = "/var/log/apache2/error.log";
     private static String fileAccesslog = "/var/log/apache2/access.log";
     private static ArrayList<String> allLines = new ArrayList<String>();
     private static int currentLine = 0;
@@ -27,6 +27,7 @@ public class Monitor {
 //        new NeptuneErrorLogCEP(10,3);
         new VerticalPortScan(20, 100);
         new HorizontalPortScan(60, 2, 10); // set to 2 to test, use 5 or more in production
+        new BlockPortScan(20,10);
 
         PcapNetworkInterface device = getNetworkDevice();
         System.out.println(device.getName() + "(" + device.getDescription() + ")");
@@ -46,36 +47,32 @@ public class Monitor {
         }
 
         // Tell the handle to loop using the listener we created
-        try {
-            handle.loop(maxPackets, (PacketListener) packet -> {
-                try {
-                    IpV4Packet ipV4Packet = packet.get(IpV4Packet.class);
-                    TcpPacket tcpPacket = ipV4Packet.get(TcpPacket.class);
-                    int port = tcpPacket.getHeader().getSrcPort().valueAsInt();
-                    TCPPacket evt = new TCPPacket(
-                            ipV4Packet.getHeader(),
-                            tcpPacket.getHeader()
-                    );
-                    if (port != 443 && port != 80 && port != 62078) {
-                        sendEvent(evt, TCPPacket.class.getSimpleName());
-                    }
-                } catch (Exception ignored) {
+        handle.loop(maxPackets, (PacketListener) packet -> {
 
+            try {
+                IpV4Packet ipV4Packet = packet.get(IpV4Packet.class);
+                TcpPacket tcpPacket = ipV4Packet.get(TcpPacket.class);
+                int port = tcpPacket.getHeader().getSrcPort().valueAsInt();
+                TCPPacket evt = new TCPPacket(
+                        ipV4Packet.getHeader(),
+                        tcpPacket.getHeader()
+                );
+                if (port != 443 && port != 80 && port != 62078) {
+                    sendEvent(evt, TCPPacket.class.getSimpleName());
                 }
+            } catch (Exception ignored) {
 
-                ApacheAccessLogEvent aal = null;
-                try {
-                    aal = ApacheAccessLogEvent.nextEvent();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                if (aal != null) sendEvent(aal, "AAL_Event");
+            }
 
-            });
+            ApacheAccessLogEvent aal = null;
+            try {
+                aal = ApacheAccessLogEvent.nextEvent();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if (aal != null) sendEvent(aal, "AAL_Event");
 
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        });
 
         // Cleanup when complete
         handle.close();

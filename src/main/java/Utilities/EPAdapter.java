@@ -21,6 +21,8 @@ public class EPAdapter {
         configuration.getCommon().addEventType("TCPPacket", TCPPacket.class);
         configuration.getCommon().addEventType("VerticalPortScanAlert",VerticalPortScanAlert.class);
         configuration.getCommon().addEventType("HorizontalPortScanAlert",HorizontalPortScanAlert.class);
+        configuration.getCommon().addEventType("BlockPortScanAlert",BlockPortScanAlert.class);
+
         configuration.getRuntime().getLogging().setEnableExecutionDebug(false);
         configuration.getRuntime().getLogging().setEnableTimerDebug(false);
         runtime = EPRuntimeProvider.getDefaultRuntime(configuration);
