@@ -2,10 +2,10 @@ package CEP.PortScanDetector;
 
 import java.net.*;
 
-public class VerticalPortScanAlert {
+public class VerticalPortScanEvent {
     InetAddress hostAddr;
 
-    public VerticalPortScanAlert(InetAddress hostAddr) {
+    public VerticalPortScanEvent(InetAddress hostAddr) {
         this.hostAddr = hostAddr;
     }
 

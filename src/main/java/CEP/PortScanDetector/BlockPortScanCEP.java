@@ -8,8 +8,8 @@ import org.pcap4j.packet.namednumber.*;
 import java.io.*;
 import java.net.*;
 
-public class BlockPortScan {
-    public BlockPortScan(int alertPeriod, int interval) throws EPCompileException, EPDeployException, IOException, EPCompileException, EPDeployException {
+public class BlockPortScanCEP {
+    public BlockPortScanCEP(int alertPeriod, int interval) throws EPCompileException, EPDeployException, IOException, EPCompileException, EPDeployException {
 
         new EPAdapter().execute("add-horizontal-port-scan", "insert into BlockPortScanAlert\n" +
                 "select hostPort from HorizontalPortScanAlert#expr(oldest_timestamp > newest_timestamp - 1000)");

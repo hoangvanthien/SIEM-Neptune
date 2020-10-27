@@ -4,20 +4,20 @@ import org.pcap4j.packet.namednumber.*;
 
 import java.net.*;
 
-public class BlockPortScanAlert {
+public class BlockPortScanEvent {
     InetAddress hostAddr;
     Port hostPort;
     Long timestamp;
 
-    public BlockPortScanAlert(InetAddress hostAddr) {
+    public BlockPortScanEvent(InetAddress hostAddr) {
         this.hostAddr = hostAddr;
     }
 
-    public BlockPortScanAlert(Port hostPort) {
+    public BlockPortScanEvent(Port hostPort) {
         this.hostPort = hostPort;
     }
 
-    public BlockPortScanAlert(Long timestamp) {
+    public BlockPortScanEvent(Long timestamp) {
         this.timestamp = timestamp;
     }
 

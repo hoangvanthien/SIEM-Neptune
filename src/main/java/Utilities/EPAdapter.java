@@ -19,9 +19,9 @@ public class EPAdapter {
         configuration.getCommon().addEventType("AEL_Event", NeptuneErrorLogEvent.class);
         configuration.getCommon().addEventType("AAL_Event", ApacheAccessLogEvent.class);
         configuration.getCommon().addEventType("TCPPacket", TCPPacket.class);
-        configuration.getCommon().addEventType("VerticalPortScanAlert",VerticalPortScanAlert.class);
-        configuration.getCommon().addEventType("HorizontalPortScanAlert",HorizontalPortScanAlert.class);
-        configuration.getCommon().addEventType("BlockPortScanAlert",BlockPortScanAlert.class);
+        configuration.getCommon().addEventType("VerticalPortScanAlert", VerticalPortScanEvent.class);
+        configuration.getCommon().addEventType("HorizontalPortScanAlert", HorizontalPortScanEvent.class);
+        configuration.getCommon().addEventType("BlockPortScanAlert", BlockPortScanEvent.class);
 
         configuration.getRuntime().getLogging().setEnableExecutionDebug(false);
         configuration.getRuntime().getLogging().setEnableTimerDebug(false);

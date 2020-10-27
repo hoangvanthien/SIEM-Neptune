@@ -7,8 +7,8 @@ import org.pcap4j.packet.namednumber.*;
 
 import java.io.*;
 
-public class HorizontalPortScan {
-    public HorizontalPortScan(int alertPeriod, int consecutiveFailed, int interval) throws EPCompileException, EPDeployException, IOException, EPCompileException, EPDeployException {
+public class HorizontalPortScanCEP {
+    public HorizontalPortScanCEP(int alertPeriod, int consecutiveFailed, int interval) throws EPCompileException, EPDeployException, IOException, EPCompileException, EPDeployException {
 
         new EPAdapter().execute("get-horizontal-port-scan", "insert into HorizontalPortScanAlert\n" +
                 "select tcpHeader.srcPort\n" +

@@ -2,10 +2,10 @@ package CEP.PortScanDetector;
 
 import org.pcap4j.packet.namednumber.*;
 
-public class HorizontalPortScanAlert {
+public class HorizontalPortScanEvent {
     Port hostPort;
 
-    public HorizontalPortScanAlert(Port hostPort) {
+    public HorizontalPortScanEvent(Port hostPort) {
         this.hostPort = hostPort;
     }
 

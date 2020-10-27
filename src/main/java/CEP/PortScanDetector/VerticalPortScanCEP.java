@@ -8,8 +8,8 @@ import com.espertech.esper.runtime.client.*;
 import java.io.*;
 import java.net.*;
 
-public class VerticalPortScan {
-    public VerticalPortScan(int alertPeriod, int consecutiveFailed) throws EPCompileException, EPDeployException, IOException, EPCompileException, EPDeployException {
+public class VerticalPortScanCEP {
+    public VerticalPortScanCEP(int alertPeriod, int consecutiveFailed) throws EPCompileException, EPDeployException, IOException, EPCompileException, EPDeployException {
 
         new EPAdapter().execute("get-vertical-port-scan", "insert into VerticalPortScanAlert\n" +
                 "select ipHeader.dstAddr\n" +

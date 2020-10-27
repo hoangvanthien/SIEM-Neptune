@@ -24,6 +24,7 @@
          $_SESSION["USERNAME"] = $username;
          header("location: welcome.php");
          $error = "";
+         error_log("Neptune: User ".$username." has logged in successfully.");
       } else {
          header("HTTP/1.0 401 Unauthorized");
          $error = "Wrong username or password!";
@@ -33,6 +34,7 @@
 ?>
 <html>   
    <head>
+      <link rel="icon" href="/favicon.ico">
       <title>Login Page</title>
    </head>
    
@@ -49,7 +51,7 @@
 
          <input type = "submit" value = " Submit "/><br>
       </form>
-      <?php echo $error; ?>
+      <?php echo $error; ?><br>
       No account? <a href="register.php">Register</a> here.
    </body>
    <script>
