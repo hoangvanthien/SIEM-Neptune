@@ -8,7 +8,7 @@ import org.pcap4j.util.*;
 
 import java.io.IOException;
 
-public class PSMonitor {
+public class Detector {
     private static final int snapshotLength = 65536; // in bytes
     private static final int readTimeout = 100; // in milliseconds
     private static final int maxPackets = -1;
