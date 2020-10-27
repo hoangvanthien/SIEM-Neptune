@@ -7,13 +7,15 @@ import CEP.WebserverMonitor.NeptuneErrorLogCEP;
 import Utilities.EPAdapter;
 import com.espertech.esper.compiler.client.EPCompileException;
 import com.espertech.esper.runtime.client.EPDeployException;
-
+import de.siegmar.fastcsv.writer.CsvWriter;
+import javax.swing.event.PopupMenuListener;
 import javax.print.attribute.standard.JobMediaSheetsCompleted;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
@@ -22,9 +24,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
 
 public class Dashboard extends JFrame implements DocumentListener, ActionListener {
@@ -38,15 +46,20 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
     public static int count= 0;
     public static Dashboard dashboards;
     public static int index = 0;
-
     public JTextField textField;
     public JTextArea textArea;
-    public DefaultTableModel dtm,dtm2,dtm3;
+    public DefaultTableModel dtm,dtm2,dtm3,dtm0;
     public JTable table1;
     public int x=10;
     public int y=3;
     public int[] xList = {3,3,3,3};
     public int[] yList = {10,10,10,10};
+    public int[] xList2 = {3,3,3,3};
+    public int[] yList2 = {10,10,10,10};
+
+
+
+
 
     final Color entryBg;
     final Highlighter hilit;
@@ -65,7 +78,7 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
 
         JFrame dashboard = new JFrame();
         dashboard.setTitle("Dashboard");
-        dashboard.setSize(1000, 815);
+        dashboard.setSize(1000, 825);
         dashboard.setLocationRelativeTo(null);
         try{
             dashboard.setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -79,21 +92,20 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
         panel.add(Box.createRigidArea(new Dimension(1000, 5)));
 
         // Add title
-
-        JLabel introduction = new JLabel("A CEP-based SIEM System Dashboard");
+        JLabel introduction = new JLabel("A CEP-based SIEM System Dashboard" );
         panel.add(introduction);
-        introduction.setAlignmentX(panel.CENTER_ALIGNMENT);
+        introduction.setHorizontalAlignment(JLabel.CENTER);
         panel.add(Box.createRigidArea(new Dimension(900, 15)));
         panel.add(introduction);
         panel.add(Box.createRigidArea(new Dimension(1000, 1)));
         JLabel dLine = new JLabel("********************************************");
-        dLine.setAlignmentX(panel.CENTER_ALIGNMENT);
+        dLine.setHorizontalAlignment(JLabel.CENTER);
         panel.add(dLine);
         panel.add(Box.createRigidArea(new Dimension(1000, 10)));
 
         // Create table 1
 
-        JLabel table1Title = new JLabel(" Access Log Table");
+        JLabel table1Title = new JLabel("Access Log Table");
         String[] columnNames1 = new String[]{" Time "," Client Address "," URL "," Status Code "," Request Method "};
         dtm = new DefaultTableModel(0,0);
         dtm.setColumnIdentifiers(columnNames1);
@@ -105,27 +117,45 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
 
         // Create table 2
 
-        JLabel table1Title2 = new JLabel(" Error Log Table");
+        JLabel table1Title2 = new JLabel("Error Log Table");
         String[] columnNames2 = new String[]{" Time "," Client Address "," URL "," Log Message"};
         dtm2 = new DefaultTableModel(0,0);
         dtm2.setColumnIdentifiers(columnNames2);
         JTable table2 = new JTable();
         table2.setModel(dtm2);
+        table2.getColumnModel().getColumn(0).setPreferredWidth(100);
 
         // Create table 3
 
-        JLabel table1Title3 = new JLabel(" Port Scan Table");
+        JLabel table1Title3 = new JLabel("Port Scan Table");
         String[] columnNames3 = new String[]{" Time "," Client Address "," Port "," Port Status"};
         dtm3 = new DefaultTableModel(0,0);
         dtm3.setColumnIdentifiers(columnNames3);
         JTable table3 = new JTable();
         table3.setModel(dtm3);
+        table3.getColumnModel().getColumn(0).setPreferredWidth(100);
+
+
+        // Create table 0
+
+        JLabel table1Title0 = new JLabel("Alert Message Table");
+        String[] columnNames0 = new String[]{" Time "," Message"};
+        dtm0 = new DefaultTableModel(0,0);
+
+        dtm0.setColumnIdentifiers(columnNames0);
+        JTable table0 = new JTable();
+        table0.setModel(dtm0);
+        table0.getColumnModel().getColumn(0).setPreferredWidth(120);
+        table0.getColumnModel().getColumn(1).setPreferredWidth(380);
+
 
         // Add table to scrollPane
 
         JScrollPane scrollPane1 = new JScrollPane(table1,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         JScrollPane scrollPane2 = new JScrollPane(table2,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         JScrollPane scrollPane4 = new JScrollPane(table3,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+        JScrollPane scrollPane0 = new JScrollPane(table0,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+
 
         // Make scroll always at bottom
 
@@ -155,52 +185,164 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
                     e.getAdjustable().setValue(e.getAdjustable().getMaximum());
                     verticalScrollBarMaximumValue4.set(scrollPane4.getVerticalScrollBar().getMaximum());
                 });
+
+        AtomicInteger verticalScrollBarMaximumValue0 = new AtomicInteger(scrollPane0.getVerticalScrollBar().getMaximum());
+        scrollPane0.getVerticalScrollBar().addAdjustmentListener(
+                e -> {
+                    if ((verticalScrollBarMaximumValue0.get() - e.getAdjustable().getMaximum()) == 0)
+                        return;
+                    e.getAdjustable().setValue(e.getAdjustable().getMaximum());
+                    verticalScrollBarMaximumValue0.set(scrollPane0.getVerticalScrollBar().getMaximum());
+                });
+
+
+
+
+
         // Set size of tables
 
         scrollPane1.setPreferredSize(new Dimension(600,135));
         scrollPane2.setPreferredSize(new Dimension(600,135));
         scrollPane4.setPreferredSize(new Dimension(600,135));
+        scrollPane0.setPreferredSize(new Dimension(600,135));
+
+
 
         // Create change parameters panel
+        JLabel lowPriority = new JLabel(" Low Priority ");
+        lowPriority.setHorizontalAlignment(JLabel.CENTER);
+
+
+        JLabel highPriority = new JLabel(" High Priority ");
+        highPriority.setHorizontalAlignment(JLabel.CENTER);
+
 
         JPanel parameters1 = new JPanel();
-        parameters1.setLayout(new GridLayout(2, 2));
-        JLabel xLabel = new JLabel(" X: ");
-        JLabel yLabel = new JLabel(" Y: ");
-        JTextField xTextField = new JTextField(""+xList[0],3);
-        JTextField yTextField = new JTextField(""+yList[0],3);
+        parameters1.setLayout(new GridLayout(2, 1));
+        JLabel xLabel = new JLabel(" Threshhold ");
+        JLabel yLabel = new JLabel(" Period ");
+        JTextField xTextField = new JTextField(""+xList[0],2);
+        JTextField yTextField = new JTextField(""+yList[0],2);
         xTextField.setToolTipText("Raise an alert when X events of the chosen type occur in Y seconds");
         yTextField.setToolTipText("Raise an alert when X events of the chosen type occur in Y seconds");
         parameters1.add(xLabel);
-        parameters1.add(xTextField);
         parameters1.add(yLabel);
-        parameters1.add(yTextField);
+
+        JPanel parameters4 = new JPanel();
+        parameters4.setLayout(new GridLayout(2, 1));
+        parameters4.add(xTextField);
+        parameters4.add(yTextField);
+
+
+
+        JSplitPane parameters5 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,parameters1,parameters4);
+
+
         JPanel parameters2 = new JPanel();
-        parameters2.setLayout(new GridBagLayout());
-        GridBagConstraints c = new GridBagConstraints();
+        parameters2.setLayout(new GridLayout(2, 1));
+
+
+        JPanel parameters8 = new JPanel();
+        parameters8.setLayout(new GridLayout(2, 1));
+        JLabel xLabel2 = new JLabel(" Threshhold ");
+        JLabel yLabel2 = new JLabel(" Period ");
+        JTextField xTextField2 = new JTextField(""+xList2[0],2);
+        JTextField yTextField2 = new JTextField(""+yList2[0],2);
+        xTextField2.setToolTipText("Raise an alert when X events of the chosen type occur in Y seconds");
+        yTextField2.setToolTipText("Raise an alert when X events of the chosen type occur in Y seconds");
+        parameters8.add(xLabel2);
+        parameters8.add(yLabel2);
+
+        JPanel parameters9 = new JPanel();
+        parameters9.setLayout(new GridLayout(2, 1));
+        parameters9.add(xTextField2);
+        parameters9.add(yTextField2);
+
+        JSplitPane parameters10 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,parameters8,parameters9);
+        JPanel parameters11 = new JPanel();
+        parameters11.setLayout(new GridLayout(2, 1));
+
+
+
+
+//        parameters2.setLayout(new GridBagLayout());
+
+//        GridBagConstraints c = new GridBagConstraints();
         JTextField displayX = new JTextField(3);
         displayX.setEditable(false);
-        c.weightx = 0.5;
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.gridx = 0;
-        c.gridy = 0;
-        parameters2.add(displayX,c);
+//        c.weightx = 0.5;
+//        c.fill = GridBagConstraints.HORIZONTAL;
+//        c.gridx = 0;
+//        c.gridy = 0;
+//        parameters2.add(displayX,c);
+
+        parameters2.add(displayX);
         JTextField displayY = new JTextField(3);
         displayY.setEditable(false);
-        c.weightx = 0.5;
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.gridx = 1;
-        c.gridy = 0;
-        parameters2.add(displayY,c);
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.weightx = 0;
-        c.gridwidth = 2;
-        c.gridx = 0;
-        c.gridy = 1;
-        displayX.setText(""+xList[0]);
-        displayY.setText(""+yList[0]);
+//        c.weightx = 0.5;
+//        c.fill = GridBagConstraints.HORIZONTAL;
+//        c.gridx = 1;
+//        c.gridy = 0;
+//        parameters2.add(displayY,c);
+        parameters2.add(displayY);
+
+
+//        c.fill = GridBagConstraints.HORIZONTAL;
+//        c.weightx = 0;
+//        c.gridwidth = 2;
+//        c.gridx = 0;
+//        c.gridy = 1;
+        displayX.setText(""+xList[0] +" events");
+        displayY.setText(""+yList[0]+" seconds");
+
+        JTextField displayX2 = new JTextField(3);
+        displayX2.setEditable(false);
+        parameters11.add(displayX2);
+        JTextField displayY2 = new JTextField(3);
+        displayY2.setEditable(false);
+        parameters11.add(displayY2);
+
+        displayX2.setText(""+xList2[0] +" events");
+        displayY2.setText(""+yList2[0]+" seconds");
+
+
+        displayX.setHorizontalAlignment(JTextField.CENTER);
+        displayY.setHorizontalAlignment(JTextField.CENTER);
+        displayX2.setHorizontalAlignment(JTextField.CENTER);
+        displayY2.setHorizontalAlignment(JTextField.CENTER);
+
+
+
+
 
         // Set button
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         JButton setPara = new JButton("Set");
         setPara.addActionListener(new ActionListener() {
@@ -208,16 +350,27 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
             public void actionPerformed(ActionEvent e) {
                 String a = null;
                 String b = null;
+                String a2 = null;
+                String b2 = null;
                 a = xTextField.getText();
                 b = yTextField.getText();
-                a = printEnterAgain("X",a);
-                b = printEnterAgain("Y",b);
-                if(isNumeric(a)&&isNumeric(b)) {
+                a2 = xTextField2.getText();
+                b2 = yTextField2.getText();
+                a = printEnterAgain("X for Low Priority",a);
+                b = printEnterAgain("Y for Low Priority",b);
+                a2 = printEnterAgain("X for High Priority",a2);
+                b2 = printEnterAgain("Y for High Priority",b2);
+
+                if(isNumeric(a)&&isNumeric(b)&&isNumeric(a2)&&isNumeric(b2)) {
                     xList[index] = Integer.parseInt(a);
                     yList[index] = Integer.parseInt(b);
+                    xList2[index] = Integer.parseInt(a2);
+                    yList2[index] = Integer.parseInt(b2);
                 }
-                displayX.setText(Integer.toString(xList[index]));
-                displayY.setText(Integer.toString(yList[index]));
+                displayX.setText(Integer.toString(xList[index])+" events");
+                displayY.setText(Integer.toString(yList[index])+" seconds");
+                displayX2.setText(Integer.toString(xList2[index])+" events");
+                displayY2.setText(Integer.toString(yList2[index])+" seconds");
 
                 switch(index) {
                     case 0:
@@ -246,21 +399,23 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
             }
         });
         setPara.setToolTipText("Raise an alert when X events of the chosen type occur in Y seconds");
-        parameters2.add(setPara,c);
+//        parameters2.add(setPara,c);
+//        parameters2.add(setPara);
 
         // Create panel for buttons
 
         JPanel buttons = new JPanel();
-        buttons.setLayout(new GridLayout(5, 1, 120, 50));
-        buttons.setBorder(BorderFactory.createEmptyBorder(45, 15, 45, 15));
+        buttons.setLayout(new GridLayout(6, 1, 120, 25));
+        buttons.setBorder(BorderFactory.createEmptyBorder(30, 20, 30, 20));
 
         // Add buttons
 
         JButton b1 = Dashboard.buttonParameters();
         JButton b2 = new JButton("Information Summary");
-        JButton b3 = Dashboard.buttonAttackEvent();
-        JButton b4 = Dashboard.buttonRefresh();
+        JButton b3 = new JButton("Print Tables");
+        JButton b4 = new JButton("Refresh");
         JButton b5 = Dashboard.buttonExit();
+        buttons.add(setPara);
         buttons.add(b2);
         buttons.add(b1);
         buttons.add(b3);
@@ -272,6 +427,12 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
         b2.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                if(dtm0.getRowCount()==0) {
+                    System.out.println("Alert Table : No Event" );
+                }
+                else{
+                    System.out.println("Alert :" + dtm0.getRowCount() + " Events From " + dtm0.getValueAt(0,0) + " to "+  dtm0.getValueAt(dtm0.getRowCount()-1,0));
+                }
                if(dtm.getRowCount()==0) {
                     System.out.println("Access Log Table : No Event" );
                 }
@@ -295,6 +456,8 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
 
             }
         });
+
+
 
         // Create text field and text area
 
@@ -334,31 +497,194 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
         textArea.setDragEnabled(true);
         textField.setDragEnabled(true);
 
+
+
+        b4.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    textArea.setText("");
+                    dtm.setRowCount(0);
+                    dtm2.setRowCount(0);
+                    dtm3.setRowCount(0);
+                    dtm0.setRowCount(0);
+                    dashboard.revalidate();
+                    dashboard.repaint();
+                } catch (Exception exception) {
+                    System.out.println("");
+                }
+            }
+        });
+
         // Add Drop Down Menu
 
-        String[] eventString = { "Bad requests", "Failed logins on\n one username", "Failed logins on\n one password", "Failed registrations from\n one client"};
+        String[] eventString = { "Bad requests", "Failed logins on one username", "Failed logins on one password", "Failed registrations from one client"};
         JComboBox eventsList = new JComboBox(eventString);
         eventsList.setSelectedIndex(0);
         eventsList.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+
                 index = eventsList.getSelectedIndex();
-                displayX.setText(Integer.toString(xList[index]));
-                displayY.setText(Integer.toString(yList[index]));
+                displayX.setText(Integer.toString(xList[index])+" events");
+                displayY.setText(Integer.toString(yList[index])+ " seconds");
+                displayX2.setText(Integer.toString(xList2[index])+" events");
+                displayY2.setText(Integer.toString(yList2[index])+ " seconds");
+                xTextField.setText(Integer.toString(xList[index]));
+                yTextField.setText(Integer.toString(yList[index]));
+                xTextField2.setText(Integer.toString(xList2[index]));
+                yTextField2.setText(Integer.toString(yList2[index]));
+            }
+        });
+        eventsList.setLightWeightPopupEnabled(true);
+          eventsList.setPrototypeDisplayValue("XXXXX");
+
+
+        BoundsPopupMenuListener listener = new BoundsPopupMenuListener(true, false);
+        eventsList.addPopupMenuListener(listener);
+        eventsList.setPrototypeDisplayValue("XXXXX");
+
+
+
+
+        b3.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                File file1 = new File("table1.csv");
+                File file2 = new File("table2.csv");
+                File file3 = new File("table3.csv");
+                File file0 = new File("table0.csv");
+
+                CsvWriter csvWriter = new CsvWriter();
+
+                TableModel model = table1.getModel();
+                TableModel model2 = table2.getModel();
+                TableModel model3 = table3.getModel();
+                TableModel model0 = table0.getModel();
+
+
+                FileWriter csv = null;
+                try {
+                    csv = new FileWriter(file0);
+                    for (int i = 0; i < model0.getColumnCount(); i++) {
+                        csv.write(model0.getColumnName(i) + ",");
+
+                    }
+                    csv.write("\n");
+                    for (int i = 0; i < model0.getRowCount(); i++) {
+                        for (int j = 0; j < model0.getColumnCount(); j++) {
+                            csv.write(model0.getValueAt(i, j).toString() + ",");
+                        }
+                    }
+                    csv.write("\n");
+                    csv.close();
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
+                try {
+                    csv = new FileWriter(file1);
+                    for (int i = 0; i < model.getColumnCount(); i++) {
+                        csv.write(model.getColumnName(i) + ",");
+
+                    }
+                    csv.write("\n");
+                    for (int i = 0; i < model.getRowCount(); i++) {
+                        for (int j = 0; j < model.getColumnCount(); j++) {
+                            csv.write(model.getValueAt(i, j).toString() + ",");
+                        }
+                    }
+                    csv.write("\n");
+                    csv.close();
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
+
+                try {
+                    csv = new FileWriter(file2);
+                    for (int i = 0; i < model2.getColumnCount(); i++) {
+                        csv.write(model2.getColumnName(i) + ",");
+
+                    }
+                    csv.write("\n");
+                    for (int i = 0; i < model2.getRowCount(); i++) {
+                        for (int j = 0; j < model2.getColumnCount(); j++) {
+                            csv.write(model2.getValueAt(i, j).toString() + ",");
+                        }
+                    }
+                    csv.write("\n");
+                    csv.close();
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
+
+                try {
+                    csv = new FileWriter(file3);
+                    for (int i = 0; i < model3.getColumnCount(); i++) {
+                        csv.write(model3.getColumnName(i) + ",");
+
+                    }
+                    csv.write("\n");
+                    for (int i = 0; i < model3.getRowCount(); i++) {
+                        for (int j = 0; j < model3.getColumnCount(); j++) {
+                            csv.write(model3.getValueAt(i, j).toString() + ",");
+                        }
+                    }
+                    csv.write("\n");
+                    csv.close();
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
+
+
+
+
+
+                System.out.println("Print All Tables to file" );
             }
         });
 
-        // Create Split Pane
 
-        JSplitPane parameters3 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,parameters1,parameters2);
+
+        table1Title.setHorizontalAlignment(JLabel.CENTER);
+        table1Title2.setHorizontalAlignment(JLabel.CENTER);
+        table1Title3.setHorizontalAlignment(JLabel.CENTER);
+        table1Title0.setHorizontalAlignment(JLabel.CENTER);
+
+
+
+
+
+        // Create Split Pane
+        JSplitPane parameters12 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,parameters10,parameters11);
+        JSplitPane parameters14 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,highPriority,parameters12);
+        JSplitPane parameters3 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,parameters5,parameters2);
+        JSplitPane parameters6 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,lowPriority,parameters3);
+        JSplitPane parameters7 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,parameters6,parameters14);
         JSplitPane jSplitPane1 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,table1Title,scrollPane1);
         JSplitPane jSplitPane2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,table1Title2,scrollPane2);
-        JSplitPane jSplitPane3 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,jSplitPane1,jSplitPane2);
-        JSplitPane jSplitPane4 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,parameters3,buttons);
+
+
+
+
+
+
+        JSplitPane jSplitPane4 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,parameters7,buttons);
         JSplitPane jSplitPane10 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,eventsList,jSplitPane4);
         JSplitPane jSplitPane8 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,table1Title3,scrollPane4);
-        JSplitPane jSplitPane9 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,jSplitPane3,jSplitPane8);
-        JSplitPane jSplitPane5 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,jSplitPane9,jSplitPane10);
+//        JSplitPane jSplitPane9 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,jSplitPane3,jSplitPane8);
+        JSplitPane jSplitPane3 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,table1Title0,scrollPane0);
+
+
+
+
+        JTabbedPane tabbedPane = new JTabbedPane();
+        tabbedPane.addTab("Alert Message Table",null,jSplitPane3,"Click to show table 1");
+
+        tabbedPane.addTab("Access Log Table",null,jSplitPane1,"Click to show table 2");
+        tabbedPane.addTab("Error Log Table",null,jSplitPane2,"Click to show table 3");
+        tabbedPane.addTab("Port Scan Table",null,jSplitPane8,"Click to show table 4");
+
+        JSplitPane jSplitPane5 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,tabbedPane,jSplitPane10);
         JSplitPane jSplitPane6 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,textField,jScrollPane3);
         JSplitPane jSplitPane7 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,jSplitPane5,jSplitPane6);
 
@@ -404,37 +730,10 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
         return variable;
     }
 
-    // Create print Attack Event table to file button
 
-    public static JButton buttonAttackEvent(){
-        JButton d3 = new JButton("Print Tables");
-        d3.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                System.out.println("Print All Tables to file" );
-            }
-        });
-        return d3;
-    }
 
-    // Create Refresh button
 
-    public static JButton buttonRefresh(){
-        JButton d4 = new JButton("Refresh");
-        d4.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    dashboard.revalidate();
-                    dashboard.repaint();
 
-                } catch (Exception exception) {
-                    System.out.println("");
-                }
-            }
-        });
-        return d4;
-    }
 
     // Create Exit button
 
@@ -518,6 +817,9 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
             textField.setBackground(entryBg);
         }
     }
+
+
+
 
     // Future features
 //                try{
