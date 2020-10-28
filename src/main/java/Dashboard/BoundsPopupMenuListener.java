@@ -13,7 +13,7 @@ public class BoundsPopupMenuListener implements PopupMenuListener
     // the popup can be displayed above the combo box
 
 
-    private boolean scrollBarRequired = true;
+    private boolean scrollBarRequired = false;
     private boolean popupWider;
     private int maximumWidth = -1;
     private boolean popupAbove;
@@ -21,17 +21,17 @@ public class BoundsPopupMenuListener implements PopupMenuListener
 
 
     public BoundsPopupMenuListener() {
-        this(true, false, -1, false);
+        this(false, false, -1, false);
     }
 
 
     public BoundsPopupMenuListener(boolean popupWider, boolean popupAbove) {
-        this(true, popupWider, -1, popupAbove);
+        this(false, popupWider, -1, popupAbove);
     }
 
 
     public BoundsPopupMenuListener(int maximumWidth) {
-        this(true, true, maximumWidth, false);
+        this(false, true, maximumWidth, false);
     }
 
 
