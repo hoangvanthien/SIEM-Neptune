@@ -11,9 +11,9 @@ public class HorizontalPortScanCEP {
     public HorizontalPortScanCEP(int alertPeriod, int consecutiveFailed, int interval) throws EPCompileException, EPDeployException, IOException, EPCompileException, EPDeployException {
 
         new EPAdapter().execute("get-horizontal-port-scan", "insert into HorizontalPortScanAlert\n" +
-                "select tcpHeader.srcPort\n" +
+                "select tcpHeader.dstPort\n" +
                 "from TCPPacket#time(" + alertPeriod + " seconds)#expr(oldest_timestamp > newest_timestamp - 10000)\n" +
-                "group by tcpHeader.srcPort\n" +
+                "group by tcpHeader.dstPort\n" +
                 "having count(distinct ipHeader.dstAddr) >= " + consecutiveFailed +
                 "output first every " + interval + " seconds" );
 

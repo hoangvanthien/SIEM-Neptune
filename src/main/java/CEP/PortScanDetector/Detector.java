@@ -7,6 +7,7 @@ import org.pcap4j.packet.*;
 import org.pcap4j.util.*;
 
 import java.io.IOException;
+import java.util.*;
 
 public class Detector {
     private static final int snapshotLength = 65536; // in bytes
@@ -15,14 +16,16 @@ public class Detector {
     private static final String filter = "tcp";
 
     public static void main (String [] args) throws Exception {
+        // add your network interface name in args
+        String deviceName = args.length > 0 ? args[0] : "";
+
         System.out.println("Please wait while I'm configuring the Port Scan... ");
+
         new VerticalPortScanCEP(20, 100);
-        new HorizontalPortScanCEP(60, 2, 10); // set to 2 to test, use 5 or more in production
+        new HorizontalPortScanCEP(60, 5, 15); // set to 2 to test, use 5 or more in production
         new BlockPortScanCEP(20,10);
 
-        PcapNetworkInterface device = getNetworkDevice();
-        System.out.println(device.getName() + "(" + device.getDescription() + ")");
-        System.out.println("You chose: " + device);
+        PcapNetworkInterface device = getNetworkDevice(deviceName);
 
         // New code below here
         if (device == null) {
@@ -39,11 +42,10 @@ public class Detector {
 
         // Tell the handle to loop using the listener we created
         handle.loop(maxPackets, (PacketListener) packet -> {
-
             try {
                 IpV4Packet ipV4Packet = packet.get(IpV4Packet.class);
                 TcpPacket tcpPacket = ipV4Packet.get(TcpPacket.class);
-                int port = tcpPacket.getHeader().getSrcPort().valueAsInt();
+                int port = tcpPacket.getHeader().getDstPort().valueAsInt();
                 TCPPacket evt = new TCPPacket(
                         ipV4Packet.getHeader(),
                         tcpPacket.getHeader()
@@ -63,11 +65,11 @@ public class Detector {
         EPAdapter.runtime.getEventService().sendEventBean(event, eventType);
     }
 
-    static PcapNetworkInterface getNetworkDevice() {
+    static PcapNetworkInterface getNetworkDevice(String deviceName) {
         PcapNetworkInterface device = null;
         try {
-            device = new NifSelector().selectNetworkInterface();
-        } catch (IOException e) {
+            device = Pcaps.getDevByName(deviceName);
+        } catch (PcapNativeException e) {
             e.printStackTrace();
         }
         return device;
