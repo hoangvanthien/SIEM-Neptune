@@ -100,7 +100,7 @@ public class ApacheAccessLogEvent {
             try {
                 event = new ApacheAccessLogEvent(line);
             } catch (Exception ignored) {
-            
+
             }
             if (now < lastTimestamp) queue.add(event);
         }

@@ -32,5 +32,9 @@
     <orderEntry type="library" name="Maven: org.codehaus.janino:janino:3.1.2" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-simple:1.7.30" level="project" />
     <orderEntry type="library" name="Maven: org.codehaus.janino:commons-compiler:3.1.2" level="project" />
+    <orderEntry type="library" name="Maven: de.siegmar:fastcsv:1.0.3" level="project" />
+    <orderEntry type="library" name="Maven: org.pcap4j:pcap4j-core:1.8.2" level="project" />
+    <orderEntry type="library" name="Maven: net.java.dev.jna:jna:5.3.1" level="project" />
+    <orderEntry type="library" name="Maven: org.pcap4j:pcap4j-packetfactory-static:1.8.2" level="project" />
   </component>
 </module>

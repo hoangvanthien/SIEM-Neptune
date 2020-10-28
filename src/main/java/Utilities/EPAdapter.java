@@ -1,5 +1,6 @@
 package Utilities;
 
+import CEP.PortScanDetector.*;
 import CEP.WebserverMonitor.*;
 import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.configuration.Configuration;
@@ -19,6 +20,13 @@ public class EPAdapter {
         configuration.getCommon().addEventType("NEL_"+ FailedRegisterDuplicateEvent.class.getSimpleName(), FailedRegisterDuplicateEvent.class.getName());
         configuration.getCommon().addEventType("NEL_"+ SuccessChangePasswordEvent.class.getSimpleName(), SuccessChangePasswordEvent.class.getName());
         configuration.getCommon().addEventType("AAL_Event", ApacheAccessLogEvent.class);
+        configuration.getCommon().addEventType("TCPPacket", TCPPacket.class);
+        configuration.getCommon().addEventType("VerticalPortScanAlert", VerticalPortScanEvent.class);
+        configuration.getCommon().addEventType("HorizontalPortScanAlert", HorizontalPortScanEvent.class);
+        configuration.getCommon().addEventType("BlockPortScanAlert", BlockPortScanEvent.class);
+
+        configuration.getRuntime().getLogging().setEnableExecutionDebug(false);
+        configuration.getRuntime().getLogging().setEnableTimerDebug(false);
         runtime = EPRuntimeProvider.getDefaultRuntime(configuration);
         arguments = new CompilerArguments(configuration);
         arguments.getPath().add(runtime.getRuntimePath());
