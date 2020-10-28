@@ -12,10 +12,10 @@ public class BlockPortScanCEP {
     public BlockPortScanCEP(int alertPeriod, int interval) throws EPCompileException, EPDeployException, IOException, EPCompileException, EPDeployException {
 
         new EPAdapter().execute("add-horizontal-port-scan", "insert into BlockPortScanAlert\n" +
-                "select hostPort from HorizontalPortScanAlert#expr(oldest_timestamp > newest_timestamp - 1000)");
+                "select hostPort from HorizontalPortScanAlert");
 
         new EPAdapter().execute("add-vertical-port-scan", "insert into BlockPortScanAlert\n" +
-                "select hostAddr from VerticalPortScanAlert#expr(oldest_timestamp > newest_timestamp - 1000)");
+                "select hostAddr from VerticalPortScanAlert");
 
         new EPAdapter().execute("alert-block-port-scan", "select * from BlockPortScanAlert#time( " + alertPeriod + " seconds)#expr(oldest_timestamp > newest_timestamp - 1000)\n" +
                 "where exists(select * from HorizontalPortScanAlert)\n" +
