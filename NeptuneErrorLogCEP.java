@@ -80,9 +80,9 @@ public class NeptuneErrorLogCEP {
     }
 
     /**
-     *
-     * @param klass
-     * @param <T>
+     * Cast an object savely
+     * @param klass the target class
+     * @param <T> the target type
      */
     static <T> void setupEventStream(Class<T> klass) throws EPCompileException, EPDeployException, NoSuchFieldException, IllegalAccessException {
         new EPAdapter().execute("NEL-catch-"+klass.getSimpleName(), "select * from NEL_Event(message like '" + klass.getDeclaredField("REGEXP_LIKE").get(null) + "')").
@@ -98,9 +98,9 @@ public class NeptuneErrorLogCEP {
 
     /**
      *
-     * @param klass
+     * @param klass the target class
      * @param period recent time interval of window
-     * @param <T>
+     * @param <T> the target type
      */
     static <T> void setupEventStream(Class<T> klass, int period) throws EPCompileException, EPDeployException, NoSuchFieldException, IllegalAccessException {
         setupEventStream(klass);
