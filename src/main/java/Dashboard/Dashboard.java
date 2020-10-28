@@ -549,12 +549,18 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
         am2.put(ENTER_ACTION,new addCount());
 
         // Enable drag and drop
-
+        
         table1.setDragEnabled(true);
         table2.setDragEnabled(true);
         textArea.setDragEnabled(true);
         textField.setDragEnabled(true);
-
+        table3.setDragEnabled(true);
+        table0.setDragEnabled(true);
+        displayX.setDragEnabled(true);
+        displayY.setDragEnabled(true);
+        displayX2.setDragEnabled(true);
+        displayY2.setDragEnabled(true);
+        
         // Add Drop Down Menu
 
         String[] eventString = { "Bad requests", "Failed logins on one username", "Failed logins on one password", "Failed registrations from one client"};
