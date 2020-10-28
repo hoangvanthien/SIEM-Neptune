@@ -125,12 +125,14 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
         // Create table 3
 
         JLabel table1Title3 = new JLabel("Port Scan Table");
-        String[] columnNames3 = new String[]{" Time "," Client Address "," Port "," Port Status"};
+        String[] columnNames3 = new String[]{" Time "," Client Address "," Port "," Port Status","Type"};
         dtm3 = new DefaultTableModel(0,0);
         dtm3.setColumnIdentifiers(columnNames3);
         JTable table3 = new JTable();
         table3.setModel(dtm3);
-        table3.getColumnModel().getColumn(0).setPreferredWidth(100);
+        table3.getColumnModel().getColumn(0).setPreferredWidth(120);
+        table3.getColumnModel().getColumn(2).setPreferredWidth(50);
+        table3.getColumnModel().getColumn(4).setPreferredWidth(50);
 
 
         // Create table 0
