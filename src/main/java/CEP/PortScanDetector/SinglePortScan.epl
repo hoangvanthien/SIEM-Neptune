@@ -1,0 +1,8 @@
+@public insert into SYN_Event select * from TCPPacket_Event(ack=false,fin=false,rst=false,syn=true);
+@public insert into ACK_SYN_Event select * from TCPPacket_Event(ack=true,fin=false,rst=false,syn=true);
+@public insert into ACK_RST_Event select * from TCPPacket_Event(ack=true,fin=false,rst=true,syn=false);
+@public insert into RST_Event select * from TCPPacket_Event(ack=false,fin=false,rst=true,syn=false);
+
+@public insert into SinglePortScan_SYN_Event select A.dstPort as targetPort, A.dstAddress as targetAddress from pattern[every A=SYN_Event -> B=ACK_RST_Event(srcAddress=A.dstAddress, srcPort=A.dstPort, dstAddress=A.srcAddress, dstPort=A.srcPort)].win:time(1 minute);
+@public insert into SinglePortScan_SYN_Event select A.dstPort as targetPort, A.dstAddress as targetAddress from pattern[every A=SYN_Event -> B=ACK_SYN_Event(srcAddress=A.dstAddress, srcPort=A.dstPort, dstAddress=A.srcAddress, dstPort=A.srcPort) -> C=RST_Event(srcAddress=B.dstAddress, srcPort=B.dstPort, dstAddress=B.srcAddress, dstPort=B.srcPort)].win:time(1 minute);
+

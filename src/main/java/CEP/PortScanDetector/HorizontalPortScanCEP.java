@@ -10,7 +10,7 @@ import java.io.*;
 public class HorizontalPortScanCEP {
     public HorizontalPortScanCEP(int alertPeriod, int consecutiveFailed, int interval) throws EPCompileException, EPDeployException, IOException, EPCompileException, EPDeployException {
 
-        new EPAdapter().execute("get-horizontal-port-scan", "insert into HorizontalPortScanAlert\n" +
+        EPAdapter.quickExecute("@public insert into HorizontalPortScanAlert\n" +
                 "select tcpHeader.srcPort\n" +
                 "from TCPPacket#time(" + alertPeriod + " seconds)#expr(oldest_timestamp > newest_timestamp - 10000)\n" +
                 "group by tcpHeader.srcPort\n" +

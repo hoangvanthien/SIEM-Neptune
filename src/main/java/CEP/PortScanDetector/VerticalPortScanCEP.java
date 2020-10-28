@@ -4,24 +4,55 @@ package CEP.PortScanDetector;
 import Utilities.*;
 import com.espertech.esper.compiler.client.*;
 import com.espertech.esper.runtime.client.*;
+import org.pcap4j.packet.TcpPacket;
 
 import java.io.*;
 import java.net.*;
 
 public class VerticalPortScanCEP {
-    public VerticalPortScanCEP(int alertPeriod, int consecutiveFailed) throws EPCompileException, EPDeployException, IOException, EPCompileException, EPDeployException {
+    private static int period = 10;
+    private static int threshold = 100;
+    public static void setup() throws EPCompileException, EPDeployException, IOException, EPCompileException, EPDeployException {
 
-        new EPAdapter().execute("get-vertical-port-scan", "insert into VerticalPortScanAlert\n" +
-                "select ipHeader.dstAddr\n" +
-                "from TCPPacket#time_batch(" + alertPeriod + " seconds)#expr(oldest_timestamp > newest_timestamp - 10000)\n" +
-                "group by ipHeader.dstAddr\n" +
-                "having count(distinct tcpHeader.dstPort) > " + consecutiveFailed + "");
+        EPAdapter.quickExecute("@public create window SinglePortScan_SYN_Latest.win:time("+period+") as SinglePortScan_SYN_Event",
+                "insert into SinglePortScan_SYN_Latest select * from SinglePortScan_SYN_Event",
 
-        new EPAdapter().execute("alert-vertical-port-scan", "select * from VerticalPortScanAlert")
-                .addListener((newData, __, ___, ____) -> {
-                    InetAddress hostAddr = (InetAddress) newData[0].get("hostAddr");
-                    System.out.println("Alert a vertical scan: IP " + hostAddr.getHostAddress()
-                        + " is under attack!");
+                "@public insert into VerticalPortScan_Event " +
+                "select current_timestamp() as timestamp, targetAddress from SinglePortScan_SYN_Latest " +
+                "group by targetAddress having count(distinct targetPort) >= " + threshold,
+
+                "on VerticalPortScan_Event as A delete from SinglePortScan_SYN_Latest as B where B.targetAddress=A.targetAddress");
+
+        new EPAdapter().execute("select * from SYN_Event").addListener((data, __, ___, ____) -> {
+            System.out.println("SYN_Event");
         });
+
+        new EPAdapter().execute("select * from ACK_RST_Event").addListener((data, __, ___, ____) -> {
+            System.out.println("ACK_RST_Event");
+        });
+
+        new EPAdapter().execute("select * from SinglePortScan_SYN_Event").addListener((data, __, ___, ____) -> {
+            System.out.println("Single Port Scan");
+        });
+
+        new EPAdapter().execute("select * from VerticalPortScan_Event").addListener((data, __, ___, ____) -> {
+            System.out.println("["+Misc.formatTime((long)data[0].get("timestamp"))+"] ALERT: "+data[0].get("targetAddress") + " is under a port scan attack!");
+        });
+    }
+
+    public static int getPeriod() {
+        return period;
+    }
+
+    public static void setPeriod(int period) {
+        VerticalPortScanCEP.period = period;
+    }
+
+    public static int getThreshold() {
+        return threshold;
+    }
+
+    public static void setThreshold(int threshold) {
+        VerticalPortScanCEP.threshold = threshold;
     }
 }

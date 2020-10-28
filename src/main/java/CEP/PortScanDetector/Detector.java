@@ -1,7 +1,9 @@
 package CEP.PortScanDetector;
 
-import CEP.PortScanDetector.*;
 import Utilities.EPAdapter;
+import com.espertech.esper.common.client.module.ParseException;
+import com.espertech.esper.compiler.client.EPCompileException;
+import com.espertech.esper.runtime.client.EPDeployException;
 import org.pcap4j.core.*;
 import org.pcap4j.packet.*;
 import org.pcap4j.util.*;
@@ -14,11 +16,16 @@ public class Detector {
     private static final int maxPackets = -1;
     private static final String filter = "tcp";
 
-    public static void main (String [] args) throws Exception {
+    public static void main (String [] args) throws EPCompileException, IOException, EPDeployException, PcapNativeException, InterruptedException, NotOpenException, ParseException {
+        execute();
+    }
+
+    public static void execute() throws EPCompileException, IOException, EPDeployException, PcapNativeException, NotOpenException, InterruptedException, ParseException {
         System.out.println("Please wait while I'm configuring the Port Scan... ");
-        new VerticalPortScanCEP(20, 100);
-        new HorizontalPortScanCEP(60, 2, 10); // set to 2 to test, use 5 or more in production
-        new BlockPortScanCEP(20,10);
+        SinglePortScanCEP.setup();
+        VerticalPortScanCEP.setup();
+//        new HorizontalPortScanCEP(60, 2, 10); // set to 2 to test, use 5 or more in production
+//        new BlockPortScanCEP(20,10);
 
         PcapNetworkInterface device = getNetworkDevice();
         System.out.println(device.getName() + "(" + device.getDescription() + ")");
@@ -43,14 +50,8 @@ public class Detector {
             try {
                 IpV4Packet ipV4Packet = packet.get(IpV4Packet.class);
                 TcpPacket tcpPacket = ipV4Packet.get(TcpPacket.class);
-                int port = tcpPacket.getHeader().getSrcPort().valueAsInt();
-                TCPPacket evt = new TCPPacket(
-                        ipV4Packet.getHeader(),
-                        tcpPacket.getHeader()
-                );
-                if (port != 443 && port != 80 && port != 62078 && port != 22) {
-                    sendEvent(evt, TCPPacket.class.getSimpleName());
-                }
+                TCPPacketEvent evt = new TCPPacketEvent(ipV4Packet.getHeader(), tcpPacket.getHeader());
+                sendEvent(evt, "TCPPacket_Event");
             } catch (Exception ignored) {
 
             }

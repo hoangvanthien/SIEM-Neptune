@@ -4,11 +4,16 @@ import CEP.PortScanDetector.*;
 import CEP.WebserverMonitor.*;
 import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.configuration.Configuration;
+import com.espertech.esper.common.client.module.Module;
+import com.espertech.esper.common.client.module.ParseException;
 import com.espertech.esper.compiler.client.CompilerArguments;
 import com.espertech.esper.compiler.client.EPCompileException;
 import com.espertech.esper.compiler.client.EPCompiler;
 import com.espertech.esper.compiler.client.EPCompilerProvider;
 import com.espertech.esper.runtime.client.*;
+
+import java.io.File;
+import java.io.IOException;
 
 public class EPAdapter {
 
@@ -20,10 +25,7 @@ public class EPAdapter {
         configuration.getCommon().addEventType("NEL_"+ FailedRegisterDuplicateEvent.class.getSimpleName(), FailedRegisterDuplicateEvent.class.getName());
         configuration.getCommon().addEventType("NEL_"+ SuccessChangePasswordEvent.class.getSimpleName(), SuccessChangePasswordEvent.class.getName());
         configuration.getCommon().addEventType("AAL_Event", ApacheAccessLogEvent.class);
-        configuration.getCommon().addEventType("TCPPacket", TCPPacket.class);
-        configuration.getCommon().addEventType("VerticalPortScanAlert", VerticalPortScanEvent.class);
-        configuration.getCommon().addEventType("HorizontalPortScanAlert", HorizontalPortScanEvent.class);
-        configuration.getCommon().addEventType("BlockPortScanAlert", BlockPortScanEvent.class);
+        configuration.getCommon().addEventType("TCPPacket_Event", TCPPacketEvent.class);
 
         configuration.getRuntime().getLogging().setEnableExecutionDebug(false);
         configuration.getRuntime().getLogging().setEnableTimerDebug(false);
@@ -65,6 +67,14 @@ public class EPAdapter {
         for (String statement : statements) {
             new EPAdapter().execute("Neptune"+(int)(Math.random()*100000), statement);
         }
+    }
+
+    public static void executeFile(File file) throws IOException, ParseException, EPCompileException, EPDeployException {
+        new EPAdapter();
+        Module module = compiler.readModule(file);
+        EPCompiled epCompiled = compiler.compile(module, arguments);
+        arguments.getPath().add(epCompiled);
+        EPDeployment deployment = runtime.getDeploymentService().deploy(epCompiled);
     }
 
     public void addListener(UpdateListener listener) {
