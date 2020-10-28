@@ -8,34 +8,34 @@ import javax.swing.plaf.basic.*;
 
 public class BoundsPopupMenuListener implements PopupMenuListener
 {
-    private boolean scrollBarRequired = true;
+    //  class for a horizontal scrollbar can be displayed when necessary
+    // the popup can be wider than the combo box
+    // the popup can be displayed above the combo box
+
+
+    private boolean scrollBarRequired = false;
     private boolean popupWider;
     private int maximumWidth = -1;
     private boolean popupAbove;
     private JScrollPane scrollPane;
 
 
-    public BoundsPopupMenuListener()
-    {
-        this(true, false, -1, false);
+    public BoundsPopupMenuListener() {
+        this(false, false, -1, false);
     }
 
 
-    public BoundsPopupMenuListener(boolean popupWider, boolean popupAbove)
-    {
-        this(true, popupWider, -1, popupAbove);
+    public BoundsPopupMenuListener(boolean popupWider, boolean popupAbove) {
+        this(false, popupWider, -1, popupAbove);
     }
 
 
-    public BoundsPopupMenuListener(int maximumWidth)
-    {
-        this(true, true, maximumWidth, false);
+    public BoundsPopupMenuListener(int maximumWidth) {
+        this(false, true, maximumWidth, false);
     }
 
 
-    public BoundsPopupMenuListener(
-            boolean  scrollBarRequired, boolean popupWider, int maximumWidth, boolean popupAbove)
-    {
+    public BoundsPopupMenuListener(boolean  scrollBarRequired, boolean popupWider, int maximumWidth, boolean popupAbove) {
         setScrollBarRequired( scrollBarRequired );
         setPopupWider( popupWider );
         setMaximumWidth( maximumWidth );
@@ -43,49 +43,40 @@ public class BoundsPopupMenuListener implements PopupMenuListener
     }
 
 
-    public int getMaximumWidth()
-    {
+    public int getMaximumWidth() {
         return maximumWidth;
     }
 
 
-    public void setMaximumWidth(int maximumWidth)
-    {
+    public void setMaximumWidth(int maximumWidth) {
         this.maximumWidth = maximumWidth;
     }
 
 
-    public boolean isPopupAbove()
-    {
+    public boolean isPopupAbove() {
         return popupAbove;
     }
 
 
-    public void setPopupAbove(boolean popupAbove)
-    {
+    public void setPopupAbove(boolean popupAbove) {
         this.popupAbove = popupAbove;
     }
 
-    public boolean isPopupWider()
-    {
+    public boolean isPopupWider() {
         return popupWider;
     }
 
-
-    public void setPopupWider(boolean popupWider)
-    {
+    public void setPopupWider(boolean popupWider) {
         this.popupWider = popupWider;
     }
 
 
-    public boolean isScrollBarRequired()
-    {
+    public boolean isScrollBarRequired() {
         return scrollBarRequired;
     }
 
 
-    public void setScrollBarRequired(boolean scrollBarRequired)
-    {
+    public void setScrollBarRequired(boolean scrollBarRequired) {
         this.scrollBarRequired = scrollBarRequired;
     }
 
@@ -111,8 +102,8 @@ public class BoundsPopupMenuListener implements PopupMenuListener
         }
     }
 
-    protected void customizePopup(BasicComboPopup popup)
-    {
+    protected void customizePopup(BasicComboPopup popup) {
+
         scrollPane = getScrollPane(popup);
 
         if (popupWider)
@@ -124,30 +115,25 @@ public class BoundsPopupMenuListener implements PopupMenuListener
         Component comboBox = popup.getInvoker();
         Point location = comboBox.getLocationOnScreen();
 
-        if (popupAbove)
-        {
+        if (popupAbove) {
             int height = popup.getPreferredSize().height;
             popup.setLocation(location.x, location.y - height);
         }
-        else
-        {
+        else {
             int height = comboBox.getPreferredSize().height;
             popup.setLocation(location.x, location.y + height - 1);
             popup.setLocation(location.x, location.y + height);
         }
     }
 
-    protected void popupWider(BasicComboPopup popup)
-    {
+    protected void popupWider(BasicComboPopup popup) {
+
         JList list = popup.getList();
-
-
 
         int popupWidth = list.getPreferredSize().width
                 + getScrollBarWidth(popup, scrollPane);
 
-        if (maximumWidth != -1)
-        {
+        if (maximumWidth != -1) {
             popupWidth = Math.min(popupWidth, maximumWidth);
         }
 
@@ -161,8 +147,8 @@ public class BoundsPopupMenuListener implements PopupMenuListener
     }
 
 
-    private void checkHorizontalScrollBar(BasicComboPopup popup)
-    {
+    private void checkHorizontalScrollBar(BasicComboPopup popup) {
+
         //  Reset the viewport to the left
 
         JViewport viewport = scrollPane.getViewport();
@@ -171,8 +157,7 @@ public class BoundsPopupMenuListener implements PopupMenuListener
         viewport.setViewPosition( p );
 
 
-        if (! scrollBarRequired)
-        {
+        if (! scrollBarRequired) {
             scrollPane.setHorizontalScrollBar( null );
             return;
         }
@@ -180,16 +165,14 @@ public class BoundsPopupMenuListener implements PopupMenuListener
 
         JScrollBar horizontal = scrollPane.getHorizontalScrollBar();
 
-        if (horizontal == null)
-        {
+        if (horizontal == null) {
             horizontal = new JScrollBar(JScrollBar.HORIZONTAL);
             scrollPane.setHorizontalScrollBar( horizontal );
             scrollPane.setHorizontalScrollBarPolicy( JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED );
         }
 
 
-        if (horizontalScrollBarWillBeVisible(popup, scrollPane))
-        {
+        if (horizontalScrollBarWillBeVisible(popup, scrollPane)) {
             Dimension scrollPaneSize = scrollPane.getPreferredSize();
             scrollPaneSize.height += horizontal.getPreferredSize().height;
             scrollPane.setPreferredSize(scrollPaneSize);
@@ -199,8 +182,8 @@ public class BoundsPopupMenuListener implements PopupMenuListener
     }
 
 
-    protected JScrollPane getScrollPane(BasicComboPopup popup)
-    {
+    protected JScrollPane getScrollPane(BasicComboPopup popup) {
+
         JList list = popup.getList();
         Container c = SwingUtilities.getAncestorOfClass(JScrollPane.class, list);
 
@@ -208,13 +191,12 @@ public class BoundsPopupMenuListener implements PopupMenuListener
     }
 
 
-    protected int getScrollBarWidth(BasicComboPopup popup, JScrollPane scrollPane)
-    {
+    protected int getScrollBarWidth(BasicComboPopup popup, JScrollPane scrollPane) {
+
         int scrollBarWidth = 0;
         JComboBox comboBox = (JComboBox)popup.getInvoker();
 
-        if (comboBox.getItemCount() > comboBox.getMaximumRowCount())
-        {
+        if (comboBox.getItemCount() > comboBox.getMaximumRowCount()) {
             JScrollBar vertical = scrollPane.getVerticalScrollBar();
             scrollBarWidth = vertical.getPreferredSize().width;
         }
@@ -223,8 +205,8 @@ public class BoundsPopupMenuListener implements PopupMenuListener
     }
 
 
-    protected boolean horizontalScrollBarWillBeVisible(BasicComboPopup popup, JScrollPane scrollPane)
-    {
+    protected boolean horizontalScrollBarWillBeVisible(BasicComboPopup popup, JScrollPane scrollPane) {
+
         JList list = popup.getList();
         int scrollBarWidth = getScrollBarWidth(popup, scrollPane);
         int popupWidth = list.getPreferredSize().width + scrollBarWidth;
@@ -236,11 +218,9 @@ public class BoundsPopupMenuListener implements PopupMenuListener
     public void popupMenuCanceled(PopupMenuEvent e) {}
 
     @Override
-    public void popupMenuWillBecomeInvisible(PopupMenuEvent e)
-    {
+    public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
 
-        if (scrollPane != null)
-        {
+        if (scrollPane != null) {
             scrollPane.setHorizontalScrollBar( null );
         }
     }
