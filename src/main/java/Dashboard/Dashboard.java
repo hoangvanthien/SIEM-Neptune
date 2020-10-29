@@ -652,8 +652,7 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
 
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.addTab("Alert Message Table",null,jSplitPane3,"Click to show table 1");
-//         tabbedPane.addTab("Access Log Table",null,jSplitPane1,"Click to show table 2");
-        tabbedPane.addTab("Access Log Table",null,scrollPane1,"Click to show table 2");
+        tabbedPane.addTab("Access Log Table",null,jSplitPane1,"Click to show table 2");
 
         tabbedPane.addTab("Error Log Table",null,jSplitPane2,"Click to show table 3");
         tabbedPane.addTab("Port Scan Table",null,jSplitPane8,"Click to show table 4");
