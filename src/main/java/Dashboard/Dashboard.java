@@ -532,9 +532,31 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
         textArea.setWrapStyleWord(true);
         textArea.setEditable(true);
         JScrollPane jScrollPane3 = new JScrollPane(textArea,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        PrintStream printStream = new PrintStream(new CustomOutputStream(textArea));
-        System.setOut(printStream);
-        System.setErr(printStream);
+         // Solution 1
+
+//        PrintStream printStream = new PrintStream(new CustomOutputStream(textArea));
+//       System.setOut(printStream);
+//        System.setErr(printStream);
+
+        // Solution 2
+
+//        OutputStream outputStream = new OutputStream() {
+//            @Override
+//            public void write(int b) throws IOException {
+//
+//            }
+//        };
+//        TextAreaPrintStream textAreaPrintStream = new TextAreaPrintStream(textArea,outputStream);
+//        System.setOut(textAreaPrintStream);
+//        System.setErr(textAreaPrintStream);
+
+        // Solution 3
+
+        MessageConsole mc = new MessageConsole(textArea);
+        mc.redirectOut();
+        mc.redirectErr(RED, null);
+        mc.setMessageLines(1000);
+
 
         //Create Search box
 
