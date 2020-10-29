@@ -52,10 +52,10 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
     public JTable table1;
     public int x=10;
     public int y=3;
-    public int[] xList = {3,3,3,3};
-    public int[] yList = {10,10,10,10};
-    public int[] xList2 = {3,3,3,3};
-    public int[] yList2 = {10,10,10,10};
+    public int[] xList = {3,3,3,3,3,3};
+    public int[] yList = {10,10,10,10,10,10};
+    public int[] xList2 = {3,3,3,3,3,3};
+    public int[] yList2 = {10,10,10,10,10,10};
     final Color entryBg;
     final Highlighter hilit;
     final Highlighter.HighlightPainter painter;
@@ -596,7 +596,8 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
         
         // Add Drop Down Menu
 
-        String[] eventString = { "Bad requests", "Failed logins on one username", "Failed logins on one password", "Failed registrations from one client"};
+        String[] eventString = { "Bad requests", "Failed logins on one username", "Failed logins on one password", "Failed registrations from one client","Port scan against one address","Port scans against one port"};
+
         JComboBox eventsList = new JComboBox(eventString);
         eventsList.setSelectedIndex(0);
         eventsList.addActionListener(new ActionListener() {
