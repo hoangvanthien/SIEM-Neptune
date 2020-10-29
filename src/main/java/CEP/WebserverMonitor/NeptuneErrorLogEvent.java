@@ -19,7 +19,10 @@ import java.util.Locale;
 import java.util.Queue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+/**
+ * Read and parse the Neptune Error Log file
+ * @author Hoang Van Thien
+ */
 public class NeptuneErrorLogEvent {
 
     private String clientAddress;
@@ -32,6 +35,16 @@ public class NeptuneErrorLogEvent {
      * [Thu Oct 15 23:43:32.213121 2020] [php7:notice] [pid 845] [client 192.168.56.1:54587]
      * Neptune: Unauthorized access to /special/code01542.php. User has not logged in.,
      * referer: http://192.168.56.101/special/
+     */
+
+    /**
+     * @param LOG_ENTRY_PATTERN define regular expression pattern of log entry
+     * @param TIMESTAMP_GROUP define the position of timestamp element in log entry pattern
+     * @param CLIENT_ADDRESS_GROUP define the position of ip address element in log entry pattern
+     * @param CLIENT_PORT_GROUP define the position of port number element in log entry pattern
+     * @param LOG_MESSAGE_GROUP define the position of log message element in log entry pattern
+     * @param URL_GROUP define the position of URL element in log entry pattern
+     * @param PATTERN call "compile" method to compile LOG_ENTRY_PATTERN
      */
 
     public static final String REGEXP = "^\\[([\\w:. ]+)] " +
@@ -49,6 +62,11 @@ public class NeptuneErrorLogEvent {
 
     public NeptuneErrorLogEvent() {}
 
+    /**
+     * read and parse log line of log file
+     * @param logline a line of Neptune Error Log file
+     * @throws Exception indicate condition that application might catch
+     */
     public NeptuneErrorLogEvent(String logline) throws Exception {
         Matcher m = PATTERN.matcher(logline);
         if (!m.find()) {
@@ -63,10 +81,21 @@ public class NeptuneErrorLogEvent {
         init(timestamp, m.group(CLIENT_ADDRESS_GROUP), m.group(LOG_MESSAGE_GROUP), m.group(URL_GROUP));
     }
 
+    /**
+     * wrap the Neptune Error Log file's lines
+     * @param bean initialized Neptune error log event object
+     */
     public NeptuneErrorLogEvent(EventBean bean) {
         init((Long)bean.get("timestamp"), ""+bean.get("clientAddress"), ""+bean.get("message"), ""+bean.get("url"));
     }
 
+    /**
+     * Initialize object for log line
+     * @param timestamp a date/time of Neptune error log file
+     * @param clientAddress a ip address of client
+     * @param message a message of Neptune error log file
+     * @param url a address of web
+     */
     protected void init(long timestamp, String clientAddress, String message, String url) {
         this.clientAddress = clientAddress;
         this.timestamp = timestamp;
@@ -78,6 +107,10 @@ public class NeptuneErrorLogEvent {
         this.timeFormatted = f.format(date);
     }
 
+    /**
+     * check for the next event
+     * @return the element at the head of the queue.
+     */
     public static NeptuneErrorLogEvent nextEvent() throws IOException {
         if (!queue.isEmpty()) {
             return queue.poll();
@@ -103,42 +136,82 @@ public class NeptuneErrorLogEvent {
     private static int batchSize = 5;
     private static Queue<NeptuneErrorLogEvent> queue = new ArrayDeque<>();
 
+    /**
+     *
+     * @return a string contain ip address of client
+     */
     public String getClientAddress() {
         return clientAddress;
     }
 
+    /**
+     *
+     * @param clientAddress a client's ip address
+     */
     public void setClientAddress(String clientAddress) {
         this.clientAddress = clientAddress;
     }
 
+    /**
+     *
+     * @return a string contain  date/time
+     */
     public long getTimestamp() {
         return timestamp;
     }
 
+    /**
+     *
+     * @param timestamp date/time of Neptune error log event
+     */
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }
 
+    /**
+     *
+     * @return a DateTimeFormat object
+     */
     public String getTimeFormatted() {
         return timeFormatted;
     }
 
+    /**
+     *
+     * @param timeFormatted initialized time Formatter
+     */
     public void setTimeFormatted(String timeFormatted) {
         this.timeFormatted = timeFormatted;
     }
 
+    /**
+     *
+     * @returna string contain notification of Neptune error log file
+     */
     public String getMessage() {
         return message;
     }
 
+    /**
+     *
+     * @param message a notification of failed login event
+     */
     public void setMessage(String message) {
         this.message = message;
     }
 
+    /**
+     *
+     * @return a string contain URL of web
+     */
     public String getUrl() {
         return url;
     }
 
+    /**
+     *
+     * @param url a address of web
+     */
     public void setUrl(String url) {
         this.url = url;
     }

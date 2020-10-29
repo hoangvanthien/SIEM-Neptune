@@ -6,10 +6,26 @@ import Utilities.Misc;
 import com.espertech.esper.compiler.client.EPCompileException;
 import com.espertech.esper.runtime.client.EPDeployException;
 
-
+/**
+ * Compile EPL statement to raise alert for Apache access log file bad request
+ * An event listener is added to log the alert message
+ * @author Hoang Van Thien
+ * @author Lu Minh Khuong
+ * @author Nguyen Hoang Quan
+ */
 public class ApacheAccessLogCEP {
+    /**
+     * @param period setup time interval
+     * @param threshold the maximum times of Failure AAL
+     */
     private static int period = 10;
     private static int threshold = 3;
+
+    /**
+     * setup EPL statement and execute
+     *@throws EPCompileException Indicates an exception compiling a module or fire-and-forget query
+     *@throws EPDeployException Indicate that a precondition is not satisfied
+     */
     public static void setup() throws EPCompileException, EPDeployException {
 
         EPAdapter.quickExecute(
@@ -18,6 +34,7 @@ public class ApacheAccessLogCEP {
                 "@public insert into AAL_FailureCount select current_timestamp() as timestamp, url, count(*) as counter from AAL_Latest(httpStatusCode like '4%') group by url",
                 "@public insert into AAL_Alert select * from AAL_FailureCount(counter >= " + threshold + ")"
         );
+
 
         new EPAdapter().execute("select * from AAL_Event").
                 addListener( (newData, __, ___, ____) -> {
@@ -34,19 +51,35 @@ public class ApacheAccessLogCEP {
         });
     }
 
+    /**
+     * return time interval condition of failed access log alert
+     * @return the value of time interval
+     */
     public static int getPeriod() {
         return period;
     }
 
+    /**
+     * set the interval condition for failed access log alert
+     * @param period initialized interval condition of alert
+     */
     public static void setPeriod(int period) {
         EPAdapter.destroy();
         ApacheAccessLogCEP.period = period;
     }
 
+    /**
+     * return the threshold of failed access log times
+     * @return the value of failure access log count
+     */
     public static int getThreshold() {
         return threshold;
     }
 
+    /**
+     * setup the maximum number of times for failed access log
+     * @param threshold initialized threshold of failed access log
+     */
     public static void setThreshold(int threshold) {
         EPAdapter.destroy();
         ApacheAccessLogCEP.threshold = threshold;

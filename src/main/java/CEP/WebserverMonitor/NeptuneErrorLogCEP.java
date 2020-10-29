@@ -8,13 +8,34 @@ import com.espertech.esper.compiler.client.EPCompileException;
 import com.espertech.esper.runtime.client.EPDeployException;
 
 import java.lang.reflect.InvocationTargetException;
-
+/**
+ * Compile EPL statement to raise alert for Apache access log file bad request
+ * An event listener is added to log the alert message
+ * @author Lu Minh Khuong
+ * @author Hoang Van Thien
+ */
 public class NeptuneErrorLogCEP {
+
+    /**
+     * @param failedLoginEvent_period time interval condition for failed login
+     * @param failedRegisterDuplicateEvent_period time interval condition for failed register duplicate
+     * @param failedLoginEventByUsername_threshold maximum intensity of failed login by user name
+     * @param failedLoginEventByPassword_threshold maximum intensity of failed login by passworf
+     * @param failedRegisterDuplicateEvent_threshold maximum intensity of failed register duplicate
+     */
     private static int failedLoginEvent_period = 10;
     private static int failedRegisterDuplicateEvent_period = 10;
     private static int failedLoginEventByUsername_threshold = 3;
     private static int failedLoginEventByPassword_threshold = 3;
     private static int failedRegisterDuplicateEvent_threshold = 3;
+
+    /**
+     * setup and execute EPL statement and event stream
+     * @throws EPCompileException Indicates an exception compiling a module or fire-and-forget query
+     * @throws EPDeployException Indicate that a precondition is not satisfied
+     * @throws NoSuchFieldException Indicate that the method doesn't have a field of a specified name.
+     * @throws IllegalAccessException Indicate that the method does not have access to specified field
+     */
     public static void setup() throws EPCompileException, EPDeployException, NoSuchFieldException, IllegalAccessException {
         new EPAdapter().execute("select * from NEL_Event").
                 addListener( (newData, __, ___, ____) -> {
@@ -58,6 +79,11 @@ public class NeptuneErrorLogCEP {
                 });
     }
 
+    /**
+     * Cast an object savely
+     * @param klass the target class
+     * @param <T> the target type
+     */
     static <T> void setupEventStream(Class<T> klass) throws EPCompileException, EPDeployException, NoSuchFieldException, IllegalAccessException {
         new EPAdapter().execute("NEL-catch-"+klass.getSimpleName(), "select * from NEL_Event(message like '" + klass.getDeclaredField("REGEXP_LIKE").get(null) + "')").
                 addListener( (newData, __, ___, ____) -> {
@@ -70,6 +96,12 @@ public class NeptuneErrorLogCEP {
                 });
     }
 
+    /**
+     *
+     * @param klass the target class
+     * @param period recent time interval of window
+     * @param <T> the target type
+     */
     static <T> void setupEventStream(Class<T> klass, int period) throws EPCompileException, EPDeployException, NoSuchFieldException, IllegalAccessException {
         setupEventStream(klass);
         EPAdapter.quickExecute(
@@ -78,26 +110,46 @@ public class NeptuneErrorLogCEP {
         );
     }
 
+    /**
+     * set interval condition for failed login
+     * @param failedLoginEvent_period a time interval of failed login event
+     */
     public static void setFailedLoginEvent_period(int failedLoginEvent_period) {
         EPAdapter.destroy();
         NeptuneErrorLogCEP.failedLoginEvent_period = failedLoginEvent_period;
     }
 
+    /**
+     * set interval condition for failed register duplicate
+     * @param failedRegisterDuplicateEvent_period a time interval of failed register duplicate event
+     */
     public static void setFailedRegisterDuplicateEvent_period(int failedRegisterDuplicateEvent_period) {
         EPAdapter.destroy();
         NeptuneErrorLogCEP.failedRegisterDuplicateEvent_period = failedRegisterDuplicateEvent_period;
     }
 
+    /**
+     * set threshold for number of times failed login by user name
+     * @param failedLoginEventByUsername_threshold a threshold failed login by user name
+     */
     public static void setFailedLoginEventByUsername_threshold(int failedLoginEventByUsername_threshold) {
         EPAdapter.destroy();
         NeptuneErrorLogCEP.failedLoginEventByUsername_threshold = failedLoginEventByUsername_threshold;
     }
 
+    /**
+     * set threshold for number of times failed login by password
+     * @param failedLoginEventByPassword_threshold a threshold of failed login times by password
+     */
     public static void setFailedLoginEventByPassword_threshold(int failedLoginEventByPassword_threshold) {
         EPAdapter.destroy();
         NeptuneErrorLogCEP.failedLoginEventByPassword_threshold = failedLoginEventByPassword_threshold;
     }
 
+    /**
+     * set threshold for number of times failed register duplicate
+     * @param failedRegisterDuplicateEvent_threshold a threshold of failed register duplicate times
+     */
     public static void setFailedRegisterDuplicateEvent_threshold(int failedRegisterDuplicateEvent_threshold) {
         EPAdapter.destroy();
         NeptuneErrorLogCEP.failedRegisterDuplicateEvent_threshold = failedRegisterDuplicateEvent_threshold;
