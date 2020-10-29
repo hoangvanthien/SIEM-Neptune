@@ -23,20 +23,13 @@ public class VerticalPortScanCEP {
 
                 "on VerticalPortScan_Event as A delete from SinglePortScan_SYN_Latest as B where B.targetAddress=A.targetAddress");
 
-        new EPAdapter().execute("select * from SYN_Event").addListener((data, __, ___, ____) -> {
-            System.out.println("SYN_Event");
-        });
-
-        new EPAdapter().execute("select * from ACK_RST_Event").addListener((data, __, ___, ____) -> {
-            System.out.println("ACK_RST_Event");
-        });
-
         new EPAdapter().execute("select * from SinglePortScan_SYN_Event").addListener((data, __, ___, ____) -> {
-            System.out.println("Single Port Scan");
+            DashboardAdapter.writeToTable(data[0], DashboardAdapter.PORT_SCAN_TABLE);
         });
 
         new EPAdapter().execute("select * from VerticalPortScan_Event").addListener((data, __, ___, ____) -> {
-            System.out.println("["+Misc.formatTime((long)data[0].get("timestamp"))+"] ALERT: "+data[0].get("targetAddress") + " is under a port scan attack!");
+            DashboardAdapter.alert(data[0].get("targetAddress") + " is under a port scan attack!");
+//            System.out.println("["+Misc.formatTime((long)data[0].get("timestamp"))+"] ALERT: "+data[0].get("targetAddress") + " is under a port scan attack!");
         });
     }
 

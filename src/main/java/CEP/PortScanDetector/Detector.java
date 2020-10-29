@@ -9,6 +9,8 @@ import org.pcap4j.packet.*;
 import org.pcap4j.util.*;
 
 import java.io.IOException;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.util.*;
 
 public class Detector {
@@ -22,15 +24,20 @@ public class Detector {
     }
 
     public static void execute() throws EPCompileException, IOException, EPDeployException, PcapNativeException, NotOpenException, InterruptedException, ParseException {
-        String deviceName = "eth0s8";
+        String deviceName = "any";
+
+//        new HorizontalPortScanCEP(60, 2, 10); // set to 2 to test, use 5 or more in production
+//        new BlockPortScanCEP(20,10);
+//        InetAddress ip = null;
+//        try(final DatagramSocket socket = new DatagramSocket()){
+//            socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
+//            ip = socket.getLocalAddress();
+//        }
+        PcapNetworkInterface device = getNetworkDevice(deviceName);
+
         System.out.println("Please wait while I'm configuring the Port Scan... ");
         SinglePortScanCEP.setup();
         VerticalPortScanCEP.setup();
-//        new HorizontalPortScanCEP(60, 2, 10); // set to 2 to test, use 5 or more in production
-//        new BlockPortScanCEP(20,10);
-
-        PcapNetworkInterface device = getNetworkDevice(deviceName);
-
         // New code below here
         if (device == null) {
             System.out.println("No device chosen.");
@@ -40,9 +47,7 @@ public class Detector {
         final PcapHandle handle = device.openLive(snapshotLength, PcapNetworkInterface.PromiscuousMode.PROMISCUOUS, readTimeout);
 
         // Set a filter to only listen for tcp packets on port 80 (HTTP)
-        if (filter.length() != 0) {
-            handle.setFilter(filter, BpfProgram.BpfCompileMode.OPTIMIZE);
-        }
+        handle.setFilter(filter, BpfProgram.BpfCompileMode.OPTIMIZE);
 
         // Tell the handle to loop using the listener we created
         handle.loop(maxPackets, (PacketListener) packet -> {
@@ -64,13 +69,21 @@ public class Detector {
     }
 
     static PcapNetworkInterface getNetworkDevice(String deviceName) {
-        PcapNetworkInterface device = null;
         try {
-            device = Pcaps.getDevByName(deviceName);
+            return Pcaps.getDevByName(deviceName);
         } catch (PcapNativeException e) {
             e.printStackTrace();
+            return null;
         }
-        return device;
+    }
+
+    static PcapNetworkInterface getNetworkDevice(InetAddress inetAddress) {
+        try {
+            return Pcaps.getDevByAddress(inetAddress);
+        } catch (PcapNativeException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
 }

@@ -1,5 +1,6 @@
 package Dashboard;
 
+import CEP.PortScanDetector.Detector;
 import CEP.WebserverMonitor.ApacheAccessLogCEP;
 import CEP.WebserverMonitor.FailedRegisterDuplicateEvent;
 import CEP.WebserverMonitor.Monitor;
@@ -65,8 +66,8 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
     public static void main(String[] args) throws Exception {
 
         dashboards = new Dashboard();
+        Detector.execute();
         Monitor.execute();
-
     }
 
     public Dashboard() {
@@ -125,7 +126,7 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
         // Create table 3
 
         JLabel table1Title3 = new JLabel("Port Scan Table");
-        String[] columnNames3 = new String[]{" Time "," Client Address "," Port "," Port Status","Type"};
+        String[] columnNames3 = new String[]{" Time "," Target Address "," Port "," Port Status","Type"};
         dtm3 = new DefaultTableModel(0,0);
         dtm3.setColumnIdentifiers(columnNames3);
         JTable table3 = new JTable();
@@ -523,7 +524,7 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
 
         JButton searchButton = new JButton("Search");
         textField = new JTextField(20);
-        textArea = new JTextArea("Team Nepturn \n",7,20);
+        textArea = new JTextArea("Team Neptune \n",7,20);
         JLabel status = new JLabel();
         JLabel jLabel1 = new JLabel();
         textArea.setLineWrap(true);
@@ -533,7 +534,6 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
         PrintStream printStream = new PrintStream(new CustomOutputStream(textArea));
         System.setOut(printStream);
         System.setErr(printStream);
-
         //Create Search box
 
         hilit = new DefaultHighlighter();
