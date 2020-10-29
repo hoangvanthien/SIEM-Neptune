@@ -92,13 +92,13 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
         JLabel introduction = new JLabel("A CEP-based SIEM System Dashboard" );
         panel.add(introduction);
         introduction.setHorizontalAlignment(JLabel.CENTER);
-        panel.add(Box.createRigidArea(new Dimension(900, 15)));
+        panel.add(Box.createRigidArea(new Dimension(2000, 15)));
         panel.add(introduction);
-        panel.add(Box.createRigidArea(new Dimension(1000, 1)));
+        panel.add(Box.createRigidArea(new Dimension(2000, 1)));
         JLabel dLine = new JLabel("********************************************");
         dLine.setHorizontalAlignment(JLabel.CENTER);
         panel.add(dLine);
-        panel.add(Box.createRigidArea(new Dimension(1000, 10)));
+        panel.add(Box.createRigidArea(new Dimension(2000, 10)));
 
         // Create table 1
 
@@ -138,13 +138,15 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
         // Create table 0
 
         JLabel table1Title0 = new JLabel("Alert Message Table");
-        String[] columnNames0 = new String[]{" Time "," Message"};
+        String[] columnNames0 = new String[]{" Time ","Priority","Message"};
         dtm0 = new DefaultTableModel(0,0);
         dtm0.setColumnIdentifiers(columnNames0);
         JTable table0 = new JTable();
         table0.setModel(dtm0);
         table0.getColumnModel().getColumn(0).setPreferredWidth(120);
-        table0.getColumnModel().getColumn(1).setPreferredWidth(380);
+        table0.getColumnModel().getColumn(1).setPreferredWidth(45);
+        table0.getColumnModel().getColumn(2).setPreferredWidth(310);
+
 
 
         // Add table to scrollPane
