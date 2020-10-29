@@ -55,6 +55,8 @@ public class Detector {
                 IpV4Packet ipV4Packet = packet.get(IpV4Packet.class);
                 TcpPacket tcpPacket = ipV4Packet.get(TcpPacket.class);
                 TCPPacketEvent evt = new TCPPacketEvent(ipV4Packet.getHeader(), tcpPacket.getHeader());
+                if (evt.getSrcAddress().equals(evt.getDstAddress())) return;
+//                System.out.println(evt.toString());
                 sendEvent(evt, "TCPPacket_Event");
             } catch (Exception ignored) {
 

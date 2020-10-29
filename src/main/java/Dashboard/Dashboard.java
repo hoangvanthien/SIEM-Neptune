@@ -42,10 +42,10 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
     public JTable table1;
     public int x=10;
     public int y=3;
-    public int[] xList = {3,3,3,3};
-    public int[] yList = {10,10,10,10};
-    public int[] xList2 = {5,5,5,5};
-    public int[] yList2 = {10,10,10,10};
+    public int[] xList = {3,3,3,3,3,3};
+    public int[] yList = {10,10,10,10,10,10};
+    public int[] xList2 = {5,5,5,5,200,500};
+    public int[] yList2 = {10,10,10,10,10,10};
     final Color entryBg;
     final Highlighter hilit;
     final Highlighter.HighlightPainter painter;
@@ -82,17 +82,19 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
         JLabel introduction = new JLabel("A CEP-based SIEM System Dashboard" );
         panel.add(introduction);
         introduction.setHorizontalAlignment(JLabel.CENTER);
-        panel.add(Box.createRigidArea(new Dimension(900, 15)));
+        panel.add(Box.createRigidArea(new Dimension(2000, 15)));
         panel.add(introduction);
-        panel.add(Box.createRigidArea(new Dimension(1000, 1)));
+        panel.add(Box.createRigidArea(new Dimension(2000, 1)));
         JLabel dLine = new JLabel("********************************************");
         dLine.setHorizontalAlignment(JLabel.CENTER);
         panel.add(dLine);
-        panel.add(Box.createRigidArea(new Dimension(1000, 10)));
+        panel.add(Box.createRigidArea(new Dimension(2000, 10)));
 
         // Create table 1
 
         JLabel table1Title = new JLabel("Access Log Table");
+        Font f = table1Title.getFont();
+        table1Title.setFont(f.deriveFont(f.getStyle()&~Font.BOLD));
         String[] columnNames1 = new String[]{" Time "," Client Address "," URL "," Status Code "," Request Method "};
         dtm = new DefaultTableModel(0,0);
         dtm.setColumnIdentifiers(columnNames1);
@@ -105,6 +107,7 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
         // Create table 2
 
         JLabel table1Title2 = new JLabel("Error Log Table");
+        table1Title2.setFont(f.deriveFont(f.getStyle()&~Font.BOLD));
         String[] columnNames2 = new String[]{" Time "," Client Address "," URL "," Log Message"};
         dtm2 = new DefaultTableModel(0,0);
         dtm2.setColumnIdentifiers(columnNames2);
@@ -115,26 +118,32 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
         // Create table 3
 
         JLabel table1Title3 = new JLabel("Port Scan Table");
-        String[] columnNames3 = new String[]{" Time "," Target Address "," Port "," Port Status","Type"};
+        table1Title3.setFont(f.deriveFont(f.getStyle()&~Font.BOLD));
+        String[] columnNames3 = new String[]{" Time ","Scanner","Target Address"," Port "," Port Status","Type"};
         dtm3 = new DefaultTableModel(0,0);
         dtm3.setColumnIdentifiers(columnNames3);
         JTable table3 = new JTable();
         table3.setModel(dtm3);
-        table3.getColumnModel().getColumn(0).setPreferredWidth(120);
-        table3.getColumnModel().getColumn(2).setPreferredWidth(50);
-        table3.getColumnModel().getColumn(4).setPreferredWidth(50);
+         table3.getColumnModel().getColumn(0).setPreferredWidth(120);
+        table3.getColumnModel().getColumn(1).setPreferredWidth(45);
+        table3.getColumnModel().getColumn(3).setPreferredWidth(35);
+        table3.getColumnModel().getColumn(4).setPreferredWidth(60);
+        table3.getColumnModel().getColumn(5).setPreferredWidth(35);
 
 
         // Create table 0
 
         JLabel table1Title0 = new JLabel("Alert Message Table");
-        String[] columnNames0 = new String[]{" Time "," Message"};
+        table1Title0.setFont(f.deriveFont(f.getStyle()&~Font.BOLD));
+        String[] columnNames0 = new String[]{" Time ","Priority","Message"};
         dtm0 = new DefaultTableModel(0,0);
         dtm0.setColumnIdentifiers(columnNames0);
         JTable table0 = new JTable();
         table0.setModel(dtm0);
         table0.getColumnModel().getColumn(0).setPreferredWidth(120);
-        table0.getColumnModel().getColumn(1).setPreferredWidth(380);
+        table0.getColumnModel().getColumn(1).setPreferredWidth(45);
+        table0.getColumnModel().getColumn(2).setPreferredWidth(310);
+
 
 
         // Add table to scrollPane
@@ -524,9 +533,32 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
         textArea.setWrapStyleWord(true);
         textArea.setEditable(true);
         JScrollPane jScrollPane3 = new JScrollPane(textArea,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        PrintStream printStream = new PrintStream(new CustomOutputStream(textArea));
-        System.setOut(printStream);
-        System.setErr(printStream);
+         // Solution 1
+
+//        PrintStream printStream = new PrintStream(new CustomOutputStream(textArea));
+//       System.setOut(printStream);
+//        System.setErr(printStream);
+
+        // Solution 2
+
+//        OutputStream outputStream = new OutputStream() {
+//            @Override
+//            public void write(int b) throws IOException {
+//
+//            }
+//        };
+//        TextAreaPrintStream textAreaPrintStream = new TextAreaPrintStream(textArea,outputStream);
+//        System.setOut(textAreaPrintStream);
+//        System.setErr(textAreaPrintStream);
+
+        // Solution 3
+
+        MessageConsole mc = new MessageConsole(textArea);
+        mc.redirectOut();
+        mc.redirectErr(Color.RED, null);
+        mc.setMessageLines(1000);
+
+
         //Create Search box
 
         hilit = new DefaultHighlighter();
@@ -558,7 +590,8 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
         
         // Add Drop Down Menu
 
-        String[] eventString = { "Bad requests", "Failed logins on one username", "Failed logins on one password", "Failed registrations from one client"};
+        String[] eventString = { "Bad requests", "Failed logins on one username", "Failed logins on one password", "Failed registrations from one client","Port scan against one address","Port scans against one port"};
+
         JComboBox eventsList = new JComboBox(eventString);
         eventsList.setSelectedIndex(0);
         eventsList.addActionListener(new ActionListener() {
@@ -587,12 +620,12 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
 
 
 
-        // Some alignment for tables's title
+//         // Some alignment for tables's title
 
-        table1Title.setHorizontalAlignment(JLabel.CENTER);
-        table1Title2.setHorizontalAlignment(JLabel.CENTER);
-        table1Title3.setHorizontalAlignment(JLabel.CENTER);
-        table1Title0.setHorizontalAlignment(JLabel.CENTER);
+//         table1Title.setHorizontalAlignment(JLabel.CENTER);
+//         table1Title2.setHorizontalAlignment(JLabel.CENTER);
+//         table1Title3.setHorizontalAlignment(JLabel.CENTER);
+//         table1Title0.setHorizontalAlignment(JLabel.CENTER);
 
 
 
@@ -605,6 +638,8 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
         JSplitPane parameters6 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,lowPriority,parameters3);
         JSplitPane parameters7 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,parameters6,parameters14);
         JSplitPane jSplitPane1 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,table1Title,scrollPane1);
+        
+        
         JSplitPane jSplitPane2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,table1Title2,scrollPane2);
         JSplitPane jSplitPane4 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,parameters7,buttons);
         JSplitPane jSplitPane10 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,eventsList,jSplitPane4);
@@ -617,7 +652,9 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
 
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.addTab("Alert Message Table",null,jSplitPane3,"Click to show table 1");
-        tabbedPane.addTab("Access Log Table",null,jSplitPane1,"Click to show table 2");
+//         tabbedPane.addTab("Access Log Table",null,jSplitPane1,"Click to show table 2");
+        tabbedPane.addTab("Access Log Table",null,scrollPane1,"Click to show table 2");
+
         tabbedPane.addTab("Error Log Table",null,jSplitPane2,"Click to show table 3");
         tabbedPane.addTab("Port Scan Table",null,jSplitPane8,"Click to show table 4");
 
