@@ -12,7 +12,7 @@ import java.net.*;
 
 public class VerticalPortScanCEP {
     private static int[] period = {10, 10};
-    private static int[] threshold = {100, 500};
+    private static int[] threshold = {200, 500};
     public static void setup() throws EPCompileException, EPDeployException {
         setup("LowPriority", period[0], threshold[0]);
         setup("HighPriority", period[1], threshold[1]);

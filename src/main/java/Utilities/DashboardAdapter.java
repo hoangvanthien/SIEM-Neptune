@@ -20,7 +20,7 @@ public class DashboardAdapter {
         } else if (i == ERROR_LOG_TABLE) {
             tables[i].addRow(new Object[]{o.get("timeFormatted"), o.get("clientAddress"), o.get("url"), o.get("message")});
         } else if (i == PORT_SCAN_TABLE) {
-            tables[i].addRow(new Object[]{Misc.formatTime((long)o.get("timestamp")), o.get("targetAddress"), o.get("targetPort"), o.get("status"), o.get("type")});
+            tables[i].addRow(new Object[]{Misc.formatTime((long)o.get("timestamp")), o.get("scanner"), o.get("targetAddress"), o.get("targetPort"), o.get("status"), o.get("type")});
         }
     }
 

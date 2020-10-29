@@ -42,9 +42,9 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
     public JTable table1;
     public int x=10;
     public int y=3;
-    public int[] xList = {3,3,3,3,3,3};
+    public int[] xList = {3,3,3,3,200,2};
     public int[] yList = {10,10,10,10,10,10};
-    public int[] xList2 = {5,5,5,5,200,500};
+    public int[] xList2 = {5,5,5,5,500,5};
     public int[] yList2 = {10,10,10,10,10,10};
     final Color entryBg;
     final Highlighter hilit;
@@ -119,16 +119,17 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
 
         JLabel table1Title3 = new JLabel("Port Scan Table");
         table1Title3.setFont(f.deriveFont(f.getStyle()&~Font.BOLD));
-        String[] columnNames3 = new String[]{" Time ","Scanner","Target Address"," Port "," Port Status","Type"};
+        String[] columnNames3 = new String[]{"Time","Scanner","Target","Port","Status","Type"};
         dtm3 = new DefaultTableModel(0,0);
         dtm3.setColumnIdentifiers(columnNames3);
         JTable table3 = new JTable();
         table3.setModel(dtm3);
-         table3.getColumnModel().getColumn(0).setPreferredWidth(120);
-        table3.getColumnModel().getColumn(1).setPreferredWidth(45);
-        table3.getColumnModel().getColumn(3).setPreferredWidth(35);
-        table3.getColumnModel().getColumn(4).setPreferredWidth(60);
-        table3.getColumnModel().getColumn(5).setPreferredWidth(35);
+         table3.getColumnModel().getColumn(0).setPreferredWidth(100);
+        table3.getColumnModel().getColumn(1).setPreferredWidth(75);
+        table3.getColumnModel().getColumn(2).setPreferredWidth(75);
+        table3.getColumnModel().getColumn(3).setPreferredWidth(15);
+        table3.getColumnModel().getColumn(4).setPreferredWidth(20);
+        table3.getColumnModel().getColumn(5).setPreferredWidth(25);
 
 
         // Create table 0
