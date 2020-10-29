@@ -103,6 +103,8 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
         // Create table 1
 
         JLabel table1Title = new JLabel("Access Log Table");
+        Font f = table1Title.getFont();
+        table1Title.setFont(f.deriveFont(f.getStyle()&~Font.BOLD));
         String[] columnNames1 = new String[]{" Time "," Client Address "," URL "," Status Code "," Request Method "};
         dtm = new DefaultTableModel(0,0);
         dtm.setColumnIdentifiers(columnNames1);
@@ -115,6 +117,7 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
         // Create table 2
 
         JLabel table1Title2 = new JLabel("Error Log Table");
+        table1Title2.setFont(f.deriveFont(f.getStyle()&~Font.BOLD));
         String[] columnNames2 = new String[]{" Time "," Client Address "," URL "," Log Message"};
         dtm2 = new DefaultTableModel(0,0);
         dtm2.setColumnIdentifiers(columnNames2);
@@ -125,6 +128,7 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
         // Create table 3
 
         JLabel table1Title3 = new JLabel("Port Scan Table");
+        table1Title3.setFont(f.deriveFont(f.getStyle()&~Font.BOLD));
         String[] columnNames3 = new String[]{" Time ","Scanner","Target Address"," Port "," Port Status","Type"};
         dtm3 = new DefaultTableModel(0,0);
         dtm3.setColumnIdentifiers(columnNames3);
@@ -140,6 +144,7 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
         // Create table 0
 
         JLabel table1Title0 = new JLabel("Alert Message Table");
+        table1Title0.setFont(f.deriveFont(f.getStyle()&~Font.BOLD));
         String[] columnNames0 = new String[]{" Time ","Priority","Message"};
         dtm0 = new DefaultTableModel(0,0);
         dtm0.setColumnIdentifiers(columnNames0);
@@ -620,12 +625,12 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
 
 
 
-        // Some alignment for tables's title
+//         // Some alignment for tables's title
 
-        table1Title.setHorizontalAlignment(JLabel.CENTER);
-        table1Title2.setHorizontalAlignment(JLabel.CENTER);
-        table1Title3.setHorizontalAlignment(JLabel.CENTER);
-        table1Title0.setHorizontalAlignment(JLabel.CENTER);
+//         table1Title.setHorizontalAlignment(JLabel.CENTER);
+//         table1Title2.setHorizontalAlignment(JLabel.CENTER);
+//         table1Title3.setHorizontalAlignment(JLabel.CENTER);
+//         table1Title0.setHorizontalAlignment(JLabel.CENTER);
 
 
 
