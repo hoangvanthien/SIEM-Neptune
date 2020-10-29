@@ -125,14 +125,16 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
         // Create table 3
 
         JLabel table1Title3 = new JLabel("Port Scan Table");
-        String[] columnNames3 = new String[]{" Time "," Client Address "," Port "," Port Status","Type"};
+        String[] columnNames3 = new String[]{" Time ","Scanner","Target Address"," Port "," Port Status","Type"};
         dtm3 = new DefaultTableModel(0,0);
         dtm3.setColumnIdentifiers(columnNames3);
         JTable table3 = new JTable();
         table3.setModel(dtm3);
-        table3.getColumnModel().getColumn(0).setPreferredWidth(120);
-        table3.getColumnModel().getColumn(2).setPreferredWidth(50);
-        table3.getColumnModel().getColumn(4).setPreferredWidth(50);
+         table3.getColumnModel().getColumn(0).setPreferredWidth(120);
+        table3.getColumnModel().getColumn(1).setPreferredWidth(45);
+        table3.getColumnModel().getColumn(3).setPreferredWidth(35);
+        table3.getColumnModel().getColumn(4).setPreferredWidth(60);
+        table3.getColumnModel().getColumn(5).setPreferredWidth(35);
 
 
         // Create table 0
@@ -636,6 +638,8 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
         JSplitPane parameters6 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,lowPriority,parameters3);
         JSplitPane parameters7 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,parameters6,parameters14);
         JSplitPane jSplitPane1 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,table1Title,scrollPane1);
+        
+        
         JSplitPane jSplitPane2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,table1Title2,scrollPane2);
         JSplitPane jSplitPane4 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,parameters7,buttons);
         JSplitPane jSplitPane10 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,eventsList,jSplitPane4);
@@ -648,7 +652,9 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
 
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.addTab("Alert Message Table",null,jSplitPane3,"Click to show table 1");
-        tabbedPane.addTab("Access Log Table",null,jSplitPane1,"Click to show table 2");
+//         tabbedPane.addTab("Access Log Table",null,jSplitPane1,"Click to show table 2");
+        tabbedPane.addTab("Access Log Table",null,scrollPane1,"Click to show table 2");
+
         tabbedPane.addTab("Error Log Table",null,jSplitPane2,"Click to show table 3");
         tabbedPane.addTab("Port Scan Table",null,jSplitPane8,"Click to show table 4");
 
