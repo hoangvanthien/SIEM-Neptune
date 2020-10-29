@@ -21,11 +21,9 @@ public class EPAdapter {
         compiler = EPCompilerProvider.getCompiler();
         configuration = new Configuration();
         configuration.getCommon().addEventType("NEL_Event", NeptuneErrorLogEvent.class);
-        configuration.getCommon().addEventType("NEL_"+ FailedLoginEvent.class.getSimpleName(), FailedLoginEvent.class.getName());
-        configuration.getCommon().addEventType("NEL_"+ FailedRegisterDuplicateEvent.class.getSimpleName(), FailedRegisterDuplicateEvent.class.getName());
-        configuration.getCommon().addEventType("NEL_"+ SuccessChangePasswordEvent.class.getSimpleName(), SuccessChangePasswordEvent.class.getName());
         configuration.getCommon().addEventType("AAL_Event", ApacheAccessLogEvent.class);
         configuration.getCommon().addEventType("TCPPacket_Event", TCPPacketEvent.class);
+        configuration.getCommon().addImport("Utilities.MessageParser");
 
         configuration.getRuntime().getLogging().setEnableExecutionDebug(false);
         configuration.getRuntime().getLogging().setEnableTimerDebug(false);
@@ -79,6 +77,10 @@ public class EPAdapter {
 
     public void addListener(UpdateListener listener) {
         this.statement.addListener(listener);
+    }
+
+    public static <EventType> void sendEvent(EventType event, String eventType) {
+        runtime.getEventService().sendEventBean(event, eventType);
     }
 
     private EPStatement statement;

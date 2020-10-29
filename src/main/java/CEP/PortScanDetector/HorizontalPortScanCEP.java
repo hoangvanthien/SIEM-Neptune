@@ -8,20 +8,23 @@ import org.pcap4j.packet.namednumber.*;
 import java.io.*;
 
 public class HorizontalPortScanCEP {
-    public HorizontalPortScanCEP(int alertPeriod, int consecutiveFailed, int interval) throws EPCompileException, EPDeployException, IOException, EPCompileException, EPDeployException {
+    private static int period = 10;
+    private static int threshold = 3;
 
-        new EPAdapter().execute("get-horizontal-port-scan", "insert into HorizontalPortScanAlert\n" +
-                "select tcpHeader.dstPort\n" +
-                "from TCPPacket#time(" + alertPeriod + " seconds)#expr(oldest_timestamp > newest_timestamp - 10000)\n" +
-                "group by tcpHeader.dstPort\n" +
-                "having count(distinct ipHeader.dstAddr) >= " + consecutiveFailed +
-                "output first every " + interval + " seconds" );
+    public static void setup() throws EPCompileException, EPDeployException, IOException, EPCompileException, EPDeployException {
+        EPAdapter.quickExecute("@public create window SinglePortScan_SYN_Latest_H.win:time("+period+") as SinglePortScan_SYN_Event",
+                "insert into SinglePortScan_SYN_Latest_H select * from SinglePortScan_SYN_Event",
 
-        new EPAdapter().execute("alert-horizontal-port-scan", "select * from HorizontalPortScanAlert")
-                .addListener((newData, __, ___, ____) -> {
-                    Port hostAddr = (Port) newData[0].get("hostPort");
-                    System.out.println("Alert a horizontal scan: Port " + hostAddr.valueAsInt()
-                            + " is under attack!");
-                });
+                "@public insert into HorizontalPortScan_Event " +
+                        "select current_timestamp() as timestamp, targetAddress from SinglePortScan_SYN_Latest_H " +
+                        "group by targetPort having count(distinct targetAddress) >= " + threshold,
+
+                "on HorizontalPortScan_Event as A delete from SinglePortScan_SYN_Latest_H as B where B.targetAddress=A.targetAddress");
+
+
+        new EPAdapter().execute("select * from HorizontalPortScan_Event").addListener((data, __, ___, ____) -> {
+            DashboardAdapter.alertHigh(data[0].get("targetAddress") + " is under a port scan attack!");
+//            System.out.println("["+Misc.formatTime((long)data[0].get("timestamp"))+"] ALERT: "+data[0].get("targetAddress") + " is under a port scan attack!");
+        });
     }
 }

@@ -21,14 +21,10 @@ public class Monitor {
         System.out.println("Listening to events...");
         while (true) {
             ApacheAccessLogEvent aal = ApacheAccessLogEvent.nextEvent();
-            if (aal != null) sendEvent(aal, "AAL_Event");
+            if (aal != null) EPAdapter.sendEvent(aal, "AAL_Event");
             NeptuneErrorLogEvent nel = NeptuneErrorLogEvent.nextEvent();
-            if (nel != null) sendEvent(nel, "NEL_Event");
+            if (nel != null) EPAdapter.sendEvent(nel, "NEL_Event");
         }
-    }
-
-    static <EventType> void sendEvent(EventType event, String eventType) {
-        EPAdapter.runtime.getEventService().sendEventBean(event, eventType);
     }
 
 }

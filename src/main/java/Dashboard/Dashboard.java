@@ -2,19 +2,15 @@ package Dashboard;
 
 import CEP.PortScanDetector.Detector;
 import CEP.WebserverMonitor.ApacheAccessLogCEP;
-import CEP.WebserverMonitor.FailedRegisterDuplicateEvent;
 import CEP.WebserverMonitor.Monitor;
 import CEP.WebserverMonitor.NeptuneErrorLogCEP;
-import Utilities.EPAdapter;
 import com.espertech.esper.compiler.client.EPCompileException;
 import com.espertech.esper.runtime.client.EPDeployException;
 import de.siegmar.fastcsv.writer.CsvWriter;
-import javax.swing.event.PopupMenuListener;
-import javax.print.attribute.standard.JobMediaSheetsCompleted;
+
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.text.BadLocationException;
@@ -23,18 +19,11 @@ import javax.swing.text.Highlighter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.AdjustmentEvent;
-import java.awt.event.AdjustmentListener;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
 
 public class Dashboard extends JFrame implements DocumentListener, ActionListener {
     
@@ -55,7 +44,7 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
     public int y=3;
     public int[] xList = {3,3,3,3};
     public int[] yList = {10,10,10,10};
-    public int[] xList2 = {3,3,3,3};
+    public int[] xList2 = {5,5,5,5};
     public int[] yList2 = {10,10,10,10};
     final Color entryBg;
     final Highlighter hilit;
@@ -331,27 +320,31 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
                 displayX2.setText(Integer.toString(xList2[index])+" events");
                 displayY2.setText(Integer.toString(yList2[index])+" seconds");
 
-                switch(index) {
-                    case 0:
-                        ApacheAccessLogCEP.setPeriod(yList[index]);
-                        ApacheAccessLogCEP.setThreshold(xList[index]);
-                        break;
-                    case 1:
-                        NeptuneErrorLogCEP.setFailedLoginEvent_period(yList[index]);
-                        NeptuneErrorLogCEP.setFailedLoginEventByUsername_threshold(xList[index]);
-                        break;
-                    case 2:
-                        NeptuneErrorLogCEP.setFailedLoginEvent_period(yList[index]) ;
-                        NeptuneErrorLogCEP.setFailedLoginEventByPassword_threshold(xList[index]);
-                        break;
-                    case 3:
-                        NeptuneErrorLogCEP.setFailedRegisterDuplicateEvent_period(yList[index]);
-                        NeptuneErrorLogCEP.setFailedRegisterDuplicateEvent_threshold(xList[index]);
-                        break;
-                }
+                int[] periods = new int[]{yList[index], yList2[index]};
+                int[] thresholds = new int[]{xList[index], xList2[index]};
                 try {
-                    ApacheAccessLogCEP.setup();
-                    NeptuneErrorLogCEP.setup();
+                    switch (index) {
+                        case 0 -> {
+                            ApacheAccessLogCEP.setPeriod(periods);
+                            ApacheAccessLogCEP.setThreshold(thresholds);
+                            ApacheAccessLogCEP.setup();
+                        }
+                        case 1 -> {
+                            NeptuneErrorLogCEP.setFailedLoginByUsername_period(periods);
+                            NeptuneErrorLogCEP.setFailedLoginByUsername_threshold(thresholds);
+                            NeptuneErrorLogCEP.setup();
+                        }
+                        case 2 -> {
+                            NeptuneErrorLogCEP.setFailedLoginByPassword_period(periods);
+                            NeptuneErrorLogCEP.setFailedLoginByPassword_threshold(thresholds);
+                            NeptuneErrorLogCEP.setup();
+                        }
+                        case 3 -> {
+                            NeptuneErrorLogCEP.setFailedRegister_period(periods);
+                            NeptuneErrorLogCEP.setFailedRegister_threshold(thresholds);
+                            NeptuneErrorLogCEP.setup();
+                        }
+                    }
                 } catch (EPCompileException | EPDeployException | NoSuchFieldException | IllegalAccessException exception) {
                     exception.printStackTrace();
                 }
