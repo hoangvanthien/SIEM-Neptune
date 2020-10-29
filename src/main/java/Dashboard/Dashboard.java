@@ -561,7 +561,7 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
 
         MessageConsole mc = new MessageConsole(textArea);
         mc.redirectOut();
-        mc.redirectErr(RED, null);
+        mc.redirectErr(Color.RED, null);
         mc.setMessageLines(1000);
 
 
