@@ -22,7 +22,7 @@ public class VerticalPortScanCEP {
         });
 
         new EPAdapter().execute("select * from VerticalPortScan_Alert_HighPriority").addListener((data, __, ___, ____) -> {
-            DashboardAdapter.alertHigh(data[0].get("targetAddress") + " is under a horizontal port scan.");
+            DashboardAdapter.alertHigh(data[0].get("targetAddress") + " is under a vertical port scan.");
         });
     }
     private static void setup(String id, int period, int threshold) throws EPCompileException, EPDeployException {
