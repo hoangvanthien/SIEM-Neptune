@@ -4,9 +4,13 @@ import CEP.PortScanDetector.Detector;
 import CEP.WebserverMonitor.ApacheAccessLogCEP;
 import CEP.WebserverMonitor.Monitor;
 import CEP.WebserverMonitor.NeptuneErrorLogCEP;
+import Utilities.EPAdapter;
+import com.espertech.esper.common.client.module.ParseException;
 import com.espertech.esper.compiler.client.EPCompileException;
 import com.espertech.esper.runtime.client.EPDeployException;
 import de.siegmar.fastcsv.writer.CsvWriter;
+import org.pcap4j.core.NotOpenException;
+import org.pcap4j.core.PcapNativeException;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -55,8 +59,26 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
     public static void main(String[] args) throws Exception {
 
         dashboards = new Dashboard();
-        Detector.execute();
+        new EPAdapter();
+//        Thread t1 = new Thread(() -> {
+//            try {
+//                Detector.execute();
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        });
+//        Thread t2 = new Thread(() -> {
+//            try {
+//                Monitor.execute();
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        });
+//        t1.start();
+//        t2.start();
         Monitor.execute();
+        Detector.execute();
+
     }
 
     public Dashboard() {

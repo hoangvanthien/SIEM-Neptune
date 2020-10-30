@@ -19,12 +19,24 @@ public class Monitor {
         ApacheAccessLogCEP.setup();
         NeptuneErrorLogCEP.setup();
         System.out.println("Listening to events...");
+        Thread t1 = new Thread(()->{
         while (true) {
-            ApacheAccessLogEvent aal = ApacheAccessLogEvent.nextEvent();
+            ApacheAccessLogEvent aal = null;
+            try {
+                aal = ApacheAccessLogEvent.nextEvent();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             if (aal != null) EPAdapter.sendEvent(aal, "AAL_Event");
-            NeptuneErrorLogEvent nel = NeptuneErrorLogEvent.nextEvent();
+            NeptuneErrorLogEvent nel = null;
+            try {
+                nel = NeptuneErrorLogEvent.nextEvent();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             if (nel != null) EPAdapter.sendEvent(nel, "NEL_Event");
-        }
+        }});
+        t1.start();
     }
 
 }

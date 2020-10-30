@@ -23,7 +23,7 @@ public class ApacheAccessLogCEP {
                 DashboardAdapter.alertLow("Too many requests to non-existent file " + newData[0].get("url"));
         });
 
-        new EPAdapter().execute("select * from AAL_Alert_FileMissing_LowPriority").
+        new EPAdapter().execute("select * from AAL_Alert_FileMissing_HighPriority").
                 addListener((newData, __, ___, ____) -> {
                     DashboardAdapter.alertHigh("Likely missing file: " + newData[0].get("url"));
                 });
@@ -38,7 +38,7 @@ public class ApacheAccessLogCEP {
                 "@public insert into "+alert+
                         " select url from "+latest+"(httpStatusCode='404')" +
                         " group by url having count(*) >= " + threshold,
-                "on "+alert+" delete from "+latest+""
+                "on "+alert+" as a delete from "+latest+" as b where a.url=b.url"
         );
     }
 

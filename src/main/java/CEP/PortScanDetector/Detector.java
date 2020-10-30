@@ -18,6 +18,7 @@ public class Detector {
     private static final int readTimeout = 100; // in milliseconds
     private static final int maxPackets = -1;
     private static final String filter = "tcp";
+    private static Thread t1 = null;
 
     public static void main (String [] args) throws EPCompileException, IOException, EPDeployException, PcapNativeException, InterruptedException, NotOpenException, ParseException {
         execute();
