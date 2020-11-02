@@ -336,10 +336,10 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
                 b = yTextField.getText();
                 a2 = xTextField2.getText();
                 b2 = yTextField2.getText();
-                a = printEnterAgain("X for Low Priority",a);
-                b = printEnterAgain("Y for Low Priority",b);
-                a2 = printEnterAgain("X for High Priority",a2);
-                b2 = printEnterAgain("Y for High Priority",b2);
+                a = printEnterAgain("Threshold for Low Priority",a);
+                b = printEnterAgain("Period for Low Priority",b);
+                a2 = printEnterAgain("Threshold for High Priority",a2);
+                b2 = printEnterAgain("Period for High Priority",b2);
 
                 if(isNumeric(a)&&isNumeric(b)&&isNumeric(a2)&&isNumeric(b2)) {
                     xList[index] = Integer.parseInt(a);
