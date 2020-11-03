@@ -386,7 +386,7 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
 
         // Add buttons
 
-        JButton b1 = Dashboard.buttonParameters();
+        JButton b1 = new JButton("Print Console Note");
         JButton b2 = new JButton("Information Summary");
         JButton b3 = new JButton("Print Tables");
         JButton b4 = new JButton("Refresh");
@@ -581,6 +581,22 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
         mc.redirectErr(Color.RED, null);
         mc.setMessageLines(1000);
 
+         // Print console note listener
+        b1.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e0) {
+                try {
+                    BufferedWriter bw = new BufferedWriter(new FileWriter("console.txt"));
+                    bw.write(textArea.getText());
+                    bw.flush();
+                    bw.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                System.out.println("Print Console Note to file" );
+            }
+        });
 
         //Create Search box
 
