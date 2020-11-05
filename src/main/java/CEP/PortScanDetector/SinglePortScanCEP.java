@@ -11,7 +11,7 @@ import java.io.IOException;
 
 public class SinglePortScanCEP {
     public static void setup() throws EPCompileException, EPDeployException, IOException, ParseException {
-        EPAdapter.executeFile(new File(System.getProperty("user.dir")+"/src/main/java/CEP/PortScanDetector/SinglePortScan.epl"));
+        EPAdapter.executeFile("SinglePortScan.epl");
         new EPAdapter().execute("select * from SinglePortScan_SYN_Event").addListener((data, __, ___, ____) -> {
             DashboardAdapter.writeToTable(data[0], DashboardAdapter.PORT_SCAN_TABLE);
         });

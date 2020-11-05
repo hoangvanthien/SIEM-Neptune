@@ -67,9 +67,9 @@ public class EPAdapter {
         }
     }
 
-    public static void executeFile(File file) throws IOException, ParseException, EPCompileException, EPDeployException {
+    public static void executeFile(String filename) throws IOException, ParseException, EPCompileException, EPDeployException {
         new EPAdapter();
-        Module module = compiler.readModule(file);
+        Module module = compiler.readModule(filename, EPAdapter.class.getClassLoader());
         EPCompiled epCompiled = compiler.compile(module, arguments);
         arguments.getPath().add(epCompiled);
         EPDeployment deployment = runtime.getDeploymentService().deploy(epCompiled);
