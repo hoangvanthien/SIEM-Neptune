@@ -336,10 +336,10 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
                 b = yTextField.getText();
                 a2 = xTextField2.getText();
                 b2 = yTextField2.getText();
-                a = printEnterAgain("X for Low Priority",a);
-                b = printEnterAgain("Y for Low Priority",b);
-                a2 = printEnterAgain("X for High Priority",a2);
-                b2 = printEnterAgain("Y for High Priority",b2);
+                a = printEnterAgain("Threshold for Low Priority",a);
+                b = printEnterAgain("Period for Low Priority",b);
+                a2 = printEnterAgain("Threshold for High Priority",a2);
+                b2 = printEnterAgain("Period for High Priority",b2);
 
                 if(isNumeric(a)&&isNumeric(b)&&isNumeric(a2)&&isNumeric(b2)) {
                     xList[index] = Integer.parseInt(a);
@@ -386,7 +386,7 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
 
         // Add buttons
 
-        JButton b1 = Dashboard.buttonParameters();
+        JButton b1 = new JButton("Print Console Note");
         JButton b2 = new JButton("Information Summary");
         JButton b3 = new JButton("Print Tables");
         JButton b4 = new JButton("Refresh");
@@ -581,6 +581,22 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
         mc.redirectErr(Color.RED, null);
         mc.setMessageLines(1000);
 
+         // Print console note listener
+        b1.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e0) {
+                try {
+                    BufferedWriter bw = new BufferedWriter(new FileWriter("console.txt"));
+                    bw.write(textArea.getText());
+                    bw.flush();
+                    bw.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                System.out.println("Print Console Note to file" );
+            }
+        });
 
         //Create Search box
 
