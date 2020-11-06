@@ -23,10 +23,7 @@ import javax.swing.text.Highlighter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintStream;
+import java.io.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Dashboard extends JFrame implements DocumentListener, ActionListener {
