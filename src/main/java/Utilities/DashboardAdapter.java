@@ -5,6 +5,10 @@ import com.espertech.esper.common.client.EventBean;
 
 import javax.swing.table.DefaultTableModel;
 
+/**
+ * Adapter class that helps deliver the alerts and events from the CEP-triggers to the dashboard
+ * @author Thien Hoang, Hieu Le
+ */
 public class DashboardAdapter {
     public static final int ALERT_TABLE = 0;
     public static final int ACCESS_LOG_TABLE = 1;
@@ -16,15 +20,15 @@ public class DashboardAdapter {
     public static void writeToTable(EventBean o, int i) {
         if (disabled) return;
         if (i == ACCESS_LOG_TABLE) {
-            tables[i].addRow(new Object[]{o.get("timeFormatted"), o.get("clientAddress"), o.get("url"), o.get("httpStatusCode"), o.get("requestMethod")});
+            tables[i].addRow(new Object[]{Misc.formatTime((long)o.get("timestamp")), o.get("clientAddress"), o.get("url"), o.get("httpStatusCode"), o.get("requestMethod")});
         } else if (i == ERROR_LOG_TABLE) {
-            tables[i].addRow(new Object[]{o.get("timeFormatted"), o.get("clientAddress"), o.get("url"), o.get("message")});
+            tables[i].addRow(new Object[]{Misc.formatTime((long)o.get("timestamp")), o.get("clientAddress"), o.get("url"), o.get("message")});
         } else if (i == PORT_SCAN_TABLE) {
             tables[i].addRow(new Object[]{Misc.formatTime((long)o.get("timestamp")), o.get("scanner"), o.get("targetAddress"), o.get("targetPort"), o.get("status"), o.get("type")});
         }
     }
 
-    private static boolean disabled = false;
+    private static boolean disabled = true;
     public static void setDisabled(boolean disabled) {
         DashboardAdapter.disabled = disabled;
     }

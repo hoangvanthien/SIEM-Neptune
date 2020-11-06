@@ -4,13 +4,11 @@ import CEP.PortScanDetector.Detector;
 import CEP.WebserverMonitor.ApacheAccessLogCEP;
 import CEP.WebserverMonitor.Monitor;
 import CEP.WebserverMonitor.NeptuneErrorLogCEP;
+import Utilities.DashboardAdapter;
 import Utilities.EPAdapter;
-import com.espertech.esper.common.client.module.ParseException;
 import com.espertech.esper.compiler.client.EPCompileException;
 import com.espertech.esper.runtime.client.EPDeployException;
 import de.siegmar.fastcsv.writer.CsvWriter;
-import org.pcap4j.core.NotOpenException;
-import org.pcap4j.core.PcapNativeException;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -26,6 +24,10 @@ import java.awt.event.ActionListener;
 import java.io.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Dashboard window
+ * @author Hieu Le
+ */
 public class Dashboard extends JFrame implements DocumentListener, ActionListener {
     
     public static JFrame dashboard;
@@ -54,7 +56,7 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
 
 
     public static void main(String[] args) throws Exception {
-
+        DashboardAdapter.setDisabled(false);
         dashboards = new Dashboard();
         new EPAdapter();
 //        Thread t1 = new Thread(() -> {
@@ -344,37 +346,37 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
                     xList2[index] = Integer.parseInt(a2);
                     yList2[index] = Integer.parseInt(b2);
                 }
-                displayX.setText(Integer.toString(xList[index])+" events");
-                displayY.setText(Integer.toString(yList[index])+" seconds");
-                displayX2.setText(Integer.toString(xList2[index])+" events");
-                displayY2.setText(Integer.toString(yList2[index])+" seconds");
+                displayX.setText(xList[index] +" events");
+                displayY.setText(yList[index] +" seconds");
+                displayX2.setText(xList2[index] +" events");
+                displayY2.setText(yList2[index] +" seconds");
 
                 int[] periods = new int[]{yList[index], yList2[index]};
                 int[] thresholds = new int[]{xList[index], xList2[index]};
                 try {
                     switch (index) {
-                        case 0 -> {
+                        case 0 : {
                             ApacheAccessLogCEP.setPeriod(periods);
                             ApacheAccessLogCEP.setThreshold(thresholds);
                             ApacheAccessLogCEP.setup();
                         }
-                        case 1 -> {
-                            NeptuneErrorLogCEP.setFailedLoginByUsername_period(periods);
-                            NeptuneErrorLogCEP.setFailedLoginByUsername_threshold(thresholds);
+                        case 1 : {
+                            NeptuneErrorLogCEP.setBruteForce_period(periods);
+                            NeptuneErrorLogCEP.setBruteForce_threshold(thresholds);
                             NeptuneErrorLogCEP.setup();
                         }
-                        case 2 -> {
-                            NeptuneErrorLogCEP.setFailedLoginByPassword_period(periods);
-                            NeptuneErrorLogCEP.setFailedLoginByPassword_threshold(thresholds);
+                        case 2 : {
+                            NeptuneErrorLogCEP.setDictAttack_period(periods);
+                            NeptuneErrorLogCEP.setDictAttack_threshold(thresholds);
                             NeptuneErrorLogCEP.setup();
                         }
-                        case 3 -> {
-                            NeptuneErrorLogCEP.setFailedRegister_period(periods);
-                            NeptuneErrorLogCEP.setFailedRegister_threshold(thresholds);
+                        case 3 : {
+                            NeptuneErrorLogCEP.setUserBaseScan_period(periods);
+                            NeptuneErrorLogCEP.setUserBaseScan_threshold(thresholds);
                             NeptuneErrorLogCEP.setup();
                         }
                     }
-                } catch (EPCompileException | EPDeployException | NoSuchFieldException | IllegalAccessException exception) {
+                } catch (EPCompileException | EPDeployException exception) {
                     exception.printStackTrace();
                 }
             }
@@ -592,7 +594,7 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
                 }
 
                 System.out.println("Print Console Note to file" );
-            }
+                }
         });
 
         //Create Search box

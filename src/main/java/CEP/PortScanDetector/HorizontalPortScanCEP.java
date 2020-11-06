@@ -3,13 +3,21 @@ package CEP.PortScanDetector;
 import Utilities.*;
 import com.espertech.esper.compiler.client.*;
 import com.espertech.esper.runtime.client.*;
-import org.pcap4j.packet.namednumber.*;
 
-import java.io.*;
-
+/**
+ * Facade class to set up the CEP Engine to catch Horizontal Port Scan
+ * The setup() function must be called after SinglePortScanCEP.setup()
+ * @author Khuong Lu, Thien Hoang
+ */
 public class HorizontalPortScanCEP {
     private static int[] period = {10, 10};
     private static int[] threshold = {2, 5};
+
+    /**
+     * Set up the event streams in the CEP Engine with EPL Statement and some listeners
+     * @throws EPCompileException
+     * @throws EPDeployException
+     */
     public static void setup() throws EPCompileException, EPDeployException {
         setup("LowPriority", period[0], threshold[0]);
         setup("HighPriority", period[1], threshold[1]);
@@ -35,18 +43,34 @@ public class HorizontalPortScanCEP {
                 "on "+alert+" as A delete from "+latest+" as B where B.targetAddress=A.targetAddress");
     }
 
+    /**
+     * Get the current periods after which old packets (used to detect Horizontal Port Scan) will expire
+     * @return [period_lowPriority, period_highPriority]
+     */
     public static int[] getPeriod() {
         return period;
     }
 
+    /**
+     * Set the new periods after which old packets (used to detect Horizontal Port Scan) will expire
+     * @param period [period_lowPriority, period_highPriority]
+     */
     public static void setPeriod(int[] period) {
         HorizontalPortScanCEP.period = period;
     }
 
+    /**
+     * Get the current thresholds (number of different machines that got scanned) over which a horizontal port scan alert will be raised
+     * @return [threshold_lowPriority, threshold_highPriority]
+     */
     public static int[] getThreshold() {
         return threshold;
     }
 
+    /**
+     * Set the new thresholds (number of different machines that got scanned) over which a horizontal port scan alert will be raised
+     * @param threshold [threshold_lowPriority, threshold_highPriority]
+     */
     public static void setThreshold(int[] threshold) {
         HorizontalPortScanCEP.threshold = threshold;
     }

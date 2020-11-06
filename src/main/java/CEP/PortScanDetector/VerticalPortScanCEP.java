@@ -10,9 +10,18 @@ import org.pcap4j.packet.TcpPacket;
 import java.io.*;
 import java.net.*;
 
+/**
+ * Facade class to set up the CEP Engine to detect Vertical Port Scan
+ */
 public class VerticalPortScanCEP {
     private static int[] period = {10, 10};
     private static int[] threshold = {200, 500};
+
+    /**
+     * Set up the event streams in the CEP Engine with EPL Statement and some listeners
+     * @throws EPCompileException
+     * @throws EPDeployException
+     */
     public static void setup() throws EPCompileException, EPDeployException {
         setup("LowPriority", period[0], threshold[0]);
         setup("HighPriority", period[1], threshold[1]);
@@ -38,18 +47,34 @@ public class VerticalPortScanCEP {
                 "on "+alert+" as A delete from "+latest+" as B where B.targetAddress=A.targetAddress");
     }
 
+    /**
+     * Get the current periods after which old packets (used to detect Vertical Port Scan) will expire
+     * @return [period_lowPriority, period_highPriority]
+     */
     public static int[] getPeriod() {
         return period;
     }
 
+    /**
+     * Set the new periods after which old packets (used to detect Vertical Port Scan) will expire
+     * @param period [period_lowPriority, period_highPriority]
+     */
     public static void setPeriod(int[] period) {
         VerticalPortScanCEP.period = period;
     }
 
+    /**
+     * Get the current thresholds (number of different ports that got scanned) over which a horizontal port scan alert will be raised
+     * @return [threshold_lowPriority, threshold_highPriority]
+     */
     public static int[] getThreshold() {
         return threshold;
     }
 
+    /**
+     * Set the new thresholds (number of different ports that got scanned) over which a horizontal port scan alert will be raised
+     * @param threshold
+     */
     public static void setThreshold(int[] threshold) {
         VerticalPortScanCEP.threshold = threshold;
     }

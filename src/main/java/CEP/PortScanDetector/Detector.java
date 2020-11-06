@@ -13,6 +13,10 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.*;
 
+/**
+ * main class of the Port Scan Detector component
+ * @author Khuong Lu, Thien Hoang
+ */
 public class Detector {
     private static final int snapshotLength = 65536; // in bytes
     private static final int readTimeout = 100; // in milliseconds
@@ -20,20 +24,33 @@ public class Detector {
     private static final String filter = "tcp";
     private static Thread t1 = null;
 
+    /**
+     * main function if you want to run the Port Scan Detector alone
+     * @param args command line arguments
+     * @throws EPCompileException
+     * @throws IOException
+     * @throws EPDeployException
+     * @throws PcapNativeException
+     * @throws InterruptedException
+     * @throws NotOpenException
+     * @throws ParseException
+     */
     public static void main (String [] args) throws EPCompileException, IOException, EPDeployException, PcapNativeException, InterruptedException, NotOpenException, ParseException {
         execute();
     }
 
+    /**
+     * Run the Port Scan Detector
+     * @throws EPCompileException
+     * @throws IOException
+     * @throws EPDeployException
+     * @throws PcapNativeException
+     * @throws NotOpenException
+     * @throws InterruptedException
+     * @throws ParseException
+     */
     public static void execute() throws EPCompileException, IOException, EPDeployException, PcapNativeException, NotOpenException, InterruptedException, ParseException {
         String deviceName = "any";
-
-//        new HorizontalPortScanCEP(60, 2, 10); // set to 2 to test, use 5 or more in production
-//        new BlockPortScanCEP(20,10);
-//        InetAddress ip = null;
-//        try(final DatagramSocket socket = new DatagramSocket()){
-//            socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
-//            ip = socket.getLocalAddress();
-//        }
         PcapNetworkInterface device = getNetworkDevice(deviceName);
 
         System.out.println("Please wait while I'm configuring the Port Scan... ");

@@ -6,10 +6,18 @@ import Utilities.Misc;
 import com.espertech.esper.compiler.client.EPCompileException;
 import com.espertech.esper.runtime.client.EPDeployException;
 
-
+/**
+ * Facade class to set up the CEP Engine to analyze the requests made to the Webserver
+ */
 public class ApacheAccessLogCEP {
     private static int[] period = {10, 10};
     private static int[] threshold = {3, 5};
+
+    /**
+     * Set up the event streams in the CEP Engine with EPL Statement and some listeners
+     * @throws EPCompileException
+     * @throws EPDeployException
+     */
     public static void setup() throws EPCompileException, EPDeployException {
         setup("LowPriority", period[0], threshold[0]);
         setup("HighPriority", period[1], threshold[1]);
@@ -42,19 +50,35 @@ public class ApacheAccessLogCEP {
         );
     }
 
+    /**
+     * Get the current periods after which old events will expire
+     * @return [period_lowPriority, period_highPriority]
+     */
     public static int[] getPeriod() {
         return period;
     }
 
+    /**
+     * Set the new periods after which old events will expire
+     * @param period [period_lowPriority, period_highPriority]
+     */
     public static void setPeriod(int[] period) {
         EPAdapter.destroy();
         ApacheAccessLogCEP.period = period;
     }
 
+    /**
+     * Get the current thresholds (number of 404 responses) over which a resource missing alert will be raised
+     * @return [threshold_lowPriority, threshold_highPriority]
+     */
     public static int[] getThreshold() {
         return threshold;
     }
 
+    /**
+     * Set the new thresholds (number of 404 responses) over which a resource missing alert will be raised
+     * @param threshold [threshold_lowPriority, threshold_highPriority]
+     */
     public static void setThreshold(int[] threshold) {
         EPAdapter.destroy();
         ApacheAccessLogCEP.threshold = threshold;

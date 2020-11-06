@@ -5,7 +5,10 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.plaf.basic.*;
 
-
+/**
+ *
+ * @author Hieu Le
+ */
 public class BoundsPopupMenuListener implements PopupMenuListener
 {
     //  class for a horizontal scrollbar can be displayed when necessary

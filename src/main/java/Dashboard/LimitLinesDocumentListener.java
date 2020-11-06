@@ -3,6 +3,10 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.text.*;
 
+/**
+ *
+ * @author Hieu Le
+ */
 public class LimitLinesDocumentListener implements DocumentListener
 {
     private int maximumLines;

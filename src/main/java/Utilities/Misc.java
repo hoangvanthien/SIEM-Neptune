@@ -5,6 +5,10 @@ import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
+/**
+ * Miscellaneous utility class
+ * @author Thien Hoang
+ */
 public class Misc {
     public static String formatTime(long timestamp) {
         Timestamp ts = new Timestamp(timestamp);

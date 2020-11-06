@@ -1,15 +1,10 @@
 package CEP.WebserverMonitor;
 
 import Utilities.Misc;
-import com.espertech.esper.common.client.EventBean;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.sql.Date;
-import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -19,6 +14,10 @@ import java.util.Queue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Represent a log entry in the file access.log produced by Apache2
+ * @author Quan Nguyen, Thien Hoang
+ */
 public class ApacheAccessLogEvent {
 
     private String clientAddress; //
@@ -26,16 +25,10 @@ public class ApacheAccessLogEvent {
     private String url; //
     private String httpStatusCode; //
     private String requestMethod; //
-    private boolean badRequest;
-    private String timeFormatted; //
 
     /**
-     * 192.168.56.1 - - [16/Oct/2020:13:17:15 +0700] "POST /login.php HTTP/1.1" 401 1031
-     * "http://192.168.56.101/login.php" "Mozilla/5.0 (Windows NT 10.0; Win64; x64)
-     * AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.75 Safari/537.36 Edg/86.0.622.38"
-     **/
-
-    // ([\d.]+) (\S+) (\S+) \[([\w:/]+\s[+-]\d{4})\] "([A-Z]+) \/([\w_.]+) ([\w/.]+)" (\d{3}) (\d+) "([^"]+)" "([^"]+)"
+     * Regular expression to match with the log entry in access.log
+     */
     public static final String REGEXP = "^([\\d.]+) " +
             "(\\S+) " +
             "(\\S+) " +
@@ -58,6 +51,12 @@ public class ApacheAccessLogEvent {
 
     public ApacheAccessLogEvent() {}
 
+    /**
+     * Constructor
+     * Create an event object by parsing the log entry
+     * @param logline the log entry
+     * @throws Exception when the log entry cannot be parsed
+     */
     public ApacheAccessLogEvent(String logline) throws Exception {
         Matcher m = PATTERN.matcher (logline);
         if (!m.find()) {
@@ -73,20 +72,22 @@ public class ApacheAccessLogEvent {
         init(timestamp, m.group(CLIENT_ADDRESS_GROUP), m.group(REQUEST_METHOD_GROUP), m.group(HTTP_STATUS_CODE_GROUP), m.group(URL_GROUP));
     }
 
-    public ApacheAccessLogEvent(EventBean bean) {
-        init((Long)bean.get("timestamp"), ""+bean.get("clientAddress"), ""+bean.get("requestMethod"), ""+bean.get("httpStatusCode"), ""+bean.get("url"));
-    }
-
-    protected void init(long timestamp, String clientAddress, String requestMethod, String httpStatusCode, String url) {
+    private void init(long timestamp, String clientAddress, String requestMethod, String httpStatusCode, String url) {
         this.timestamp = timestamp;
         this.clientAddress = clientAddress;
         this.requestMethod = requestMethod;
         this.httpStatusCode = httpStatusCode;
         this.url = url;
-        this.badRequest = httpStatusCode.startsWith("4");
-        this.timeFormatted = Misc.formatTime(timestamp);
     }
 
+    /**
+     * Get an event from the log file access.log
+     * The event will always be the latest event that has not been processed.
+     * If there are multiple such events, the earliest event is returned.
+     * If there are no new events, null will be returned.
+     * @return null or an event in access.log
+     * @throws IOException thrown when failed to read the log file
+     */
     public static ApacheAccessLogEvent nextEvent() throws IOException {
         if (!queue.isEmpty()) {
             return queue.poll();
@@ -109,62 +110,92 @@ public class ApacheAccessLogEvent {
     }
 
     private static long lastTimestamp;
-    private static int batchSize = 1;
-    private static Queue<ApacheAccessLogEvent> queue = new ArrayDeque<>();
+    private static final int batchSize = 1;
+    private static final Queue<ApacheAccessLogEvent> queue = new ArrayDeque<>();
 
+    /**
+     * Get client's IP address
+     * @return client's IP address
+     */
     public String getClientAddress() {
         return clientAddress;
     }
 
+    /**
+     * Set client's IP address
+     * @param clientAddress client's IP address
+     */
     public void setClientAddress(String clientAddress) {
         this.clientAddress = clientAddress;
     }
 
+    /**
+     * Get timestamp of the event
+     * This is the timestamp recorded in the log entry, converted into number of seconds since Epoch
+     * @return timestamp of the event
+     */
     public long getTimestamp() {
         return timestamp;
     }
 
+    /**
+     * Set timestamp of the event
+     * This is the timestamp recorded in the log entry, converted into number of seconds since Epoch
+     * @param timestamp timestamp of the event
+     */
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }
 
+    /**
+     * Get the requested URL
+     * The URL upon which the client made the request
+     * @return URL of the request
+     */
     public String getUrl() {
         return url;
     }
 
+    /**
+     * Set the requested URL
+     * The URL upon which the client made the request
+     * @param url URL of the request
+     */
     public void setUrl(String url) {
         this.url = url;
     }
 
+    /**
+     * Get the status code to the request
+     * @return the status code
+     */
     public String getHttpStatusCode() {
         return httpStatusCode;
     }
 
+    /**
+     * Set the status code to the request
+     * @param httpStatusCode the status code
+     */
     public void setHttpStatusCode(String httpStatusCode) {
         this.httpStatusCode = httpStatusCode;
     }
 
+    /**
+     * Get the request method of the request
+     * Example: ``POST'', ``GET'', ...
+     * @return the request method
+     */
     public String getRequestMethod() {
         return requestMethod;
     }
 
+    /**
+     * Set the request method of the request
+     * Example: ``POST'', ``GET'', ...
+     * @param requestMethod the request method
+     */
     public void setRequestMethod(String requestMethod) {
         this.requestMethod = requestMethod;
-    }
-
-    public boolean isBadRequest() {
-        return badRequest;
-    }
-
-    public void setBadRequest(boolean badRequest) {
-        this.badRequest = badRequest;
-    }
-
-    public String getTimeFormatted() {
-        return timeFormatted;
-    }
-
-    public void setTimeFormatted(String timeFormatted) {
-        this.timeFormatted = timeFormatted;
     }
 }

@@ -5,8 +5,10 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.text.*;
 
-
-
+/**
+ * Set up the console on the Dashboard
+ * @author Hieu Le
+ */
 public class MessageConsole
 {
     private JTextComponent textComponent;
