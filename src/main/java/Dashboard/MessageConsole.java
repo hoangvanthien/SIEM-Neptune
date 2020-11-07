@@ -7,7 +7,7 @@ import javax.swing.text.*;
 
 /**
  * setup the console of dashboard
- * @author Le Dinh Trung Hieu
+ * @author Hieu Le
  */
 
 public class MessageConsole

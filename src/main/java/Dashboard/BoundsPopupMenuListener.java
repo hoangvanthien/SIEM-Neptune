@@ -6,7 +6,7 @@ import javax.swing.event.*;
 import javax.swing.plaf.basic.*;
 
 /**
- *
+ * limit the size of drop-down, setup the scroll pane user and combo box
  * @author Hieu Le
  */
 public class BoundsPopupMenuListener implements PopupMenuListener
@@ -37,7 +37,13 @@ public class BoundsPopupMenuListener implements PopupMenuListener
         this(false, true, maximumWidth, false);
     }
 
-
+    /**
+     * default constructor
+     * @param scrollBarRequired true if the combo box has too many line then the scroll bar will appear
+     * @param popupWider true if the length of line greater than the width of combo box
+     * @param maximumWidth maximum width of popup window
+     * @param popupAbove true if the popup window go up
+     */
     public BoundsPopupMenuListener(boolean  scrollBarRequired, boolean popupWider, int maximumWidth, boolean popupAbove) {
         setScrollBarRequired( scrollBarRequired );
         setPopupWider( popupWider );
@@ -45,45 +51,75 @@ public class BoundsPopupMenuListener implements PopupMenuListener
         setPopupAbove( popupAbove );
     }
 
-
+    /**
+     * get the maximum width of popup window
+     * @return the limited width of popup window
+     */
     public int getMaximumWidth() {
         return maximumWidth;
     }
 
-
+    /**
+     * set the maximum width of popup window
+     * @param maximumWidth the limited width of popup window
+     */
     public void setMaximumWidth(int maximumWidth) {
         this.maximumWidth = maximumWidth;
     }
 
-
+    /**
+     * get the popup alove
+     * @return true if the popup window go up and vice versa
+     */
     public boolean isPopupAbove() {
         return popupAbove;
     }
 
-
+    /**
+     * set the popup above
+     * @param popupAbove true if the popup window go up and vice versa
+     */
     public void setPopupAbove(boolean popupAbove) {
         this.popupAbove = popupAbove;
     }
 
+    /**
+     * get the popup's width
+     * @return true if length of line greater than width of combo box and vice versa
+     */
     public boolean isPopupWider() {
         return popupWider;
     }
 
+    /**
+     * set the popup's width
+     * @param popupWider true if length of line greater than width of combo box and vice versa
+     */
     public void setPopupWider(boolean popupWider) {
         this.popupWider = popupWider;
     }
 
+    /**
+     * get the scroll bar
+     * @return true if combo box has too many line
+     */
 
     public boolean isScrollBarRequired() {
         return scrollBarRequired;
     }
 
-
+    /**
+     * set the scroll bar
+     * @param scrollBarRequired true if combo box has too many line
+     */
     public void setScrollBarRequired(boolean scrollBarRequired) {
         this.scrollBarRequired = scrollBarRequired;
     }
 
-
+    /**
+     * This method is called before the popup menu becomes visible
+     * @param e a Popup Menu Event containing the source of the event
+     */
     @Override
     public void popupMenuWillBecomeVisible(PopupMenuEvent e)
     {
@@ -105,6 +141,10 @@ public class BoundsPopupMenuListener implements PopupMenuListener
         }
     }
 
+    /**
+     * use to customize the scroll pane frame and combo box in dashboard
+     * @param popup class object of BasicComboPopup class
+     */
     protected void customizePopup(BasicComboPopup popup) {
 
         scrollPane = getScrollPane(popup);
@@ -129,6 +169,10 @@ public class BoundsPopupMenuListener implements PopupMenuListener
         }
     }
 
+    /**
+     * set the width of popup window to show fully the option in combo box
+     * @param popup
+     */
     protected void popupWider(BasicComboPopup popup) {
 
         JList list = popup.getList();
@@ -149,7 +193,12 @@ public class BoundsPopupMenuListener implements PopupMenuListener
         scrollPane.setMaximumSize(scrollPaneSize);
     }
 
-
+    /**
+     * Use to reset the scrollable view on dashboard every time scroll the bar from left to right and vice versa
+     * (hide information was scrolled and show current information)
+     *
+     * @param popup
+     */
     private void checkHorizontalScrollBar(BasicComboPopup popup) {
 
         //  Reset the viewport to the left
@@ -184,7 +233,11 @@ public class BoundsPopupMenuListener implements PopupMenuListener
         }
     }
 
-
+    /**
+     * Get the scroll pane frame
+     * @param popup
+     * @return the predefined scroll pane
+     */
     protected JScrollPane getScrollPane(BasicComboPopup popup) {
 
         JList list = popup.getList();
@@ -193,7 +246,12 @@ public class BoundsPopupMenuListener implements PopupMenuListener
         return (JScrollPane)c;
     }
 
-
+    /**
+     * get the predefined scroll bar's width
+     * @param popup
+     * @param scrollPane instance represent the viewpoint when using scroll bar
+     * @return value of scroll bar's width
+     */
     protected int getScrollBarWidth(BasicComboPopup popup, JScrollPane scrollPane) {
 
         int scrollBarWidth = 0;
@@ -207,7 +265,12 @@ public class BoundsPopupMenuListener implements PopupMenuListener
         return scrollBarWidth;
     }
 
-
+    /**
+     * set the horizontal scroll bar to be visible if the printed line is too long
+     * @param popup
+     * @param scrollPane
+     * @return the popup width which dashboard can show the very long line
+     */
     protected boolean horizontalScrollBarWillBeVisible(BasicComboPopup popup, JScrollPane scrollPane) {
 
         JList list = popup.getList();
@@ -216,10 +279,18 @@ public class BoundsPopupMenuListener implements PopupMenuListener
 
         return popupWidth > scrollPane.getPreferredSize().width;
     }
-
+    /**
+     * This method is called when the popup menu is canceled
+     *
+     * @param e a PopupMenuEvent containing the source of the event
+     */
     @Override
     public void popupMenuCanceled(PopupMenuEvent e) {}
-
+    /**
+     * This method is called before the popup menu becomes invisible
+     *
+     * @param e a PopupMenuEvent containing the source of the event
+     */
     @Override
     public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
 

@@ -5,7 +5,7 @@ import javax.swing.text.*;
 
 /**
  * add listener to handle number of lines printed on dashboard
- * @author Le Dinh Trung Hieu
+ * @author Hieu Le
  */
 public class LimitLinesDocumentListener implements DocumentListener
 {
