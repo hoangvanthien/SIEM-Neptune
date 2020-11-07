@@ -4,11 +4,13 @@ import CEP.PortScanDetector.Detector;
 import CEP.WebserverMonitor.ApacheAccessLogCEP;
 import CEP.WebserverMonitor.Monitor;
 import CEP.WebserverMonitor.NeptuneErrorLogCEP;
-import Utilities.DashboardAdapter;
 import Utilities.EPAdapter;
+import com.espertech.esper.common.client.module.ParseException;
 import com.espertech.esper.compiler.client.EPCompileException;
 import com.espertech.esper.runtime.client.EPDeployException;
 import de.siegmar.fastcsv.writer.CsvWriter;
+import org.pcap4j.core.NotOpenException;
+import org.pcap4j.core.PcapNativeException;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -23,7 +25,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
 import java.util.concurrent.atomic.AtomicInteger;
-
 /**
  * Dashboard window
  * @author Hieu Le
@@ -56,7 +57,7 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
 
 
     public static void main(String[] args) throws Exception {
-        DashboardAdapter.setDisabled(false);
+
         dashboards = new Dashboard();
         new EPAdapter();
 //        Thread t1 = new Thread(() -> {
@@ -80,6 +81,9 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
 
     }
 
+    /**
+     * default constructor
+     */
     public Dashboard() {
 
         // Set up dashboard properties
@@ -346,37 +350,37 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
                     xList2[index] = Integer.parseInt(a2);
                     yList2[index] = Integer.parseInt(b2);
                 }
-                displayX.setText(xList[index] +" events");
-                displayY.setText(yList[index] +" seconds");
-                displayX2.setText(xList2[index] +" events");
-                displayY2.setText(yList2[index] +" seconds");
+                displayX.setText(Integer.toString(xList[index])+" events");
+                displayY.setText(Integer.toString(yList[index])+" seconds");
+                displayX2.setText(Integer.toString(xList2[index])+" events");
+                displayY2.setText(Integer.toString(yList2[index])+" seconds");
 
                 int[] periods = new int[]{yList[index], yList2[index]};
                 int[] thresholds = new int[]{xList[index], xList2[index]};
                 try {
                     switch (index) {
-                        case 0 : {
+                        case 0 -> {
                             ApacheAccessLogCEP.setPeriod(periods);
                             ApacheAccessLogCEP.setThreshold(thresholds);
                             ApacheAccessLogCEP.setup();
                         }
-                        case 1 : {
-                            NeptuneErrorLogCEP.setBruteForce_period(periods);
-                            NeptuneErrorLogCEP.setBruteForce_threshold(thresholds);
+                        case 1 -> {
+                            NeptuneErrorLogCEP.setFailedLoginByUsername_period(periods);
+                            NeptuneErrorLogCEP.setFailedLoginByUsername_threshold(thresholds);
                             NeptuneErrorLogCEP.setup();
                         }
-                        case 2 : {
-                            NeptuneErrorLogCEP.setDictAttack_period(periods);
-                            NeptuneErrorLogCEP.setDictAttack_threshold(thresholds);
+                        case 2 -> {
+                            NeptuneErrorLogCEP.setFailedLoginByPassword_period(periods);
+                            NeptuneErrorLogCEP.setFailedLoginByPassword_threshold(thresholds);
                             NeptuneErrorLogCEP.setup();
                         }
-                        case 3 : {
-                            NeptuneErrorLogCEP.setUserBaseScan_period(periods);
-                            NeptuneErrorLogCEP.setUserBaseScan_threshold(thresholds);
+                        case 3 -> {
+                            NeptuneErrorLogCEP.setFailedRegister_period(periods);
+                            NeptuneErrorLogCEP.setFailedRegister_threshold(thresholds);
                             NeptuneErrorLogCEP.setup();
                         }
                     }
-                } catch (EPCompileException | EPDeployException exception) {
+                } catch (EPCompileException | EPDeployException | NoSuchFieldException | IllegalAccessException exception) {
                     exception.printStackTrace();
                 }
             }
@@ -594,7 +598,7 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
                 }
 
                 System.out.println("Print Console Note to file" );
-                }
+            }
         });
 
         //Create Search box
@@ -708,8 +712,13 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
 
     }
 
-    // Check parameters is numeric or not
 
+
+    /**
+     * Check parameters is numeric or not
+     * @param str the input of user for setting priority
+     * @return the integer value which is formatted and parsed
+     */
     public static boolean isNumeric(String str){
         try{
             Integer.parseInt(str);
@@ -720,8 +729,12 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
         return true;
     }
 
-    // Print console note button
 
+
+    /**
+     * setup "Print console note" button
+     * @return the "Print console note" button on dashboard
+     */
     public static JButton buttonParameters(){
         JButton d1 = new JButton("Print Console Note");
         d1.addActionListener(new ActionListener() {
@@ -733,8 +746,14 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
         return d1;
     }
 
-    // Create print parameters again dialog
 
+
+    /**
+     * Create print parameters against dialog
+     * @param object the input of user for setting priority
+     * @param variable print parameter against dialog
+     * @return the print parameter
+     */
     public static String printEnterAgain(String object,String variable){
         if((!isNumeric(variable) || Integer.parseInt(variable)<0) || variable == null ){
             variable = null;
@@ -744,8 +763,12 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
     }
 
 
-    // Create Exit button
 
+
+    /**
+     * Create Exit button
+     * @return the "Exit" button on dashboard
+     */
     public static JButton buttonExit(){
         JButton d5 = new JButton("Exit");
         d5.addActionListener(new ActionListener() {
@@ -757,8 +780,11 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
         return d5;
     }
 
-    // Search function for search box
 
+
+    /**
+     * Search function for search box
+     */
     public void search(){
         hilit.removeAllHighlights();
         String s = textField.getText();
@@ -782,13 +808,17 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
             textField.setBackground(ERROR_COLOR);
         }
     }
-
+    /**
+     * Invoked when an action occurs.
+     * @param e the event to be processed
+     */
     @Override
     public void actionPerformed(ActionEvent e) {
     }
 
-    // Add Count for search
-
+    /**
+     * Add Count for search
+     */
     class addCount extends AbstractAction{
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -800,23 +830,33 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
     }
 
     // Document Event
-
+    /**
+     * Gives notification that there was an insert into the document.
+     * @param e the document event
+     */
     @Override
     public void insertUpdate(DocumentEvent e) {
         search();
     }
-
+    /**
+     * Gives notification that a portion of the document has been removed.
+     * @param e the document event
+     */
     @Override
     public void removeUpdate(DocumentEvent e) {
         search();
     }
-
+    /**
+     * Gives notification that an attribute or set of attributes changed.
+     * @param e the document event
+     */
     @Override
     public void changedUpdate(DocumentEvent e) {
     }
 
-    // Cancel Action Search box
-
+    /**
+     * Cancel Action Search box
+     */
     class CancelAction extends AbstractAction{
         @Override
         public void actionPerformed(ActionEvent e) {
