@@ -9,18 +9,18 @@ import org.pcap4j.packet.TcpPacket;
 
 import java.io.*;
 import java.net.*;
-
 /**
- * Facade class to set up the CEP Engine to detect Vertical Port Scan
+ * Compile the EPL statement for raising alerts for vertical port scan events that might be happen
+ * An event listener is also attached to log the alert messages to the user.
+ * @author Lu Minh Khuong
  */
 public class VerticalPortScanCEP {
     private static int[] period = {10, 10};
     private static int[] threshold = {200, 500};
-
     /**
-     * Set up the event streams in the CEP Engine with EPL Statement and some listeners
-     * @throws EPCompileException
-     * @throws EPDeployException
+     * add listener and setup priority from low to high
+     * @throws EPCompileException Indicates an exception compiling a module or fire-and-forget query
+     * @throws EPDeployException Indicate that a precondition is not satisfied
      */
     public static void setup() throws EPCompileException, EPDeployException {
         setup("LowPriority", period[0], threshold[0]);
@@ -34,6 +34,14 @@ public class VerticalPortScanCEP {
             DashboardAdapter.alertHigh(data[0].get("targetAddress") + " is under a vertical port scan.");
         });
     }
+    /**
+     * setup EPL statement
+     * @param id port number of detected port
+     * @param period time interval for port scanning
+     * @param threshold the maximum of consecutive port scan detection
+     * @throws EPCompileException Indicates an exception compiling a module or fire-and-forget query
+     * @throws EPDeployException Indicate that a precondition is not satisfied
+     */
     private static void setup(String id, int period, int threshold) throws EPCompileException, EPDeployException {
         String latest = "SinglePortScan_SYN_Latest_V_" + id;
         String alert = "VerticalPortScan_Alert_" + id;
@@ -46,34 +54,30 @@ public class VerticalPortScanCEP {
 
                 "on "+alert+" as A delete from "+latest+" as B where B.targetAddress=A.targetAddress");
     }
-
     /**
-     * Get the current periods after which old packets (used to detect Vertical Port Scan) will expire
-     * @return [period_lowPriority, period_highPriority]
+     * return the time interval of port scan
+     * @return the value of time interval port scan
      */
     public static int[] getPeriod() {
         return period;
     }
-
     /**
-     * Set the new periods after which old packets (used to detect Vertical Port Scan) will expire
-     * @param period [period_lowPriority, period_highPriority]
+     * set the time interval of port scan
+     * @param period instance for time interval
      */
     public static void setPeriod(int[] period) {
         VerticalPortScanCEP.period = period;
     }
-
     /**
-     * Get the current thresholds (number of different ports that got scanned) over which a horizontal port scan alert will be raised
-     * @return [threshold_lowPriority, threshold_highPriority]
+     * return the threshold port scan detection
+     * @return the value of threshold
      */
     public static int[] getThreshold() {
         return threshold;
     }
-
     /**
-     * Set the new thresholds (number of different ports that got scanned) over which a horizontal port scan alert will be raised
-     * @param threshold
+     * set the threshold of port scan
+     * @param threshold instance of threshold for port scan
      */
     public static void setThreshold(int[] threshold) {
         VerticalPortScanCEP.threshold = threshold;

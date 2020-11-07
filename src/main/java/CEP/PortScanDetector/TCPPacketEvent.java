@@ -1,10 +1,9 @@
 package CEP.PortScanDetector;
 
 import org.pcap4j.packet.*;
-
 /**
- * Represent a packet transferred in the network using TCP
- * @author Thien Hoang
+ * setup TCP packet
+ * @author Hoang Van Thien
  */
 public class TCPPacketEvent {
     private String srcAddress;
@@ -12,13 +11,10 @@ public class TCPPacketEvent {
     private int srcPort;
     private int dstPort;
     private boolean ack, syn, fin, rst;
-
     /**
-     * Constructor
-     * Extract the information from the IP header and the TCP header of the IP packet and bundle them into this POJO
-     * Note that in an IP packet, a TCP packet is wrapped inside
-     * @param ipHeader IP Header of the packet
-     * @param tcpHeader TCP Header of the packet
+     * setup the TCP packet object
+     * @param ipHeader instance for ip header in packet
+     * @param tcpHeader instance for tcp header in packet
      */
     public TCPPacketEvent(IpPacket.IpHeader ipHeader, TcpPacket.TcpHeader tcpHeader) {
         srcAddress = ipHeader.getSrcAddr().toString();
@@ -30,139 +26,122 @@ public class TCPPacketEvent {
         fin = tcpHeader.getFin();
         rst = tcpHeader.getRst();
     }
-
     /**
-     * Display the packet nicely
-     * @return information of the packet
+     * format the TCP packet's flag to string
+     * @return
      */
     public String toString() {
         return srcAddress+":"+srcPort+" -> "+dstAddress+":"+dstPort+" "+
                 (ack?"ACK ":"--- ")+(syn?"SYN ":"--- ")+(fin?"FIN ":"--- ")+(rst?"RST ":"--- ");
     }
-
     /**
-     * Get IP address of the sender
-     * @return IP address of the sender
+     * return the ip address of source device
+     * @return the string contain ip address of source device
      */
     public String getSrcAddress() {
         return srcAddress;
     }
-
     /**
-     * Set IP address of the sender
-     * @param srcAddress IP address of the sender
+     * set the ip address of source device
+     * @param srcAddress instance for source's ip address
      */
     public void setSrcAddress(String srcAddress) {
         this.srcAddress = srcAddress;
     }
-
     /**
-     * Get IP address of the receiver
-     * @return IP address of the receiver
+     * return the ip address of destination device
+     * @return the string contain the ip address of destination device
      */
     public String getDstAddress() {
         return dstAddress;
     }
-
     /**
-     * Set IP address of the receiver
-     * @param dstAddress IP address of the receiver
+     * set the ip address of source device
+     * @param dstAddress instance for destination's ip address
      */
     public void setDstAddress(String dstAddress) {
         this.dstAddress = dstAddress;
     }
-
     /**
-     * Get Port of the sender
-     * @return Port of the sender
+     * return the port number of source device
+     * @return the string contain the port number of source device
      */
     public int getSrcPort() {
         return srcPort;
     }
-
     /**
-     * Set Port of the sender
-     * @param srcPort Port of the sender
+     * set the port number of source device
+     * @param srcPort instance for port number of source device
      */
     public void setSrcPort(int srcPort) {
         this.srcPort = srcPort;
     }
-
     /**
-     * Get Port of the receiver
-     * @return Port of the receiver
+     * return the port number of destination device
+     * @return the string contain the port number of destination device
      */
     public int getDstPort() {
         return dstPort;
     }
-
     /**
-     * Set Port of the receiver
-     * @param dstPort Port of the receiver
+     * set the port number of destination device
+     * @param dstPort instance for port number of destination device
      */
     public void setDstPort(int dstPort) {
         this.dstPort = dstPort;
     }
-
     /**
-     * Get ACK flag
-     * @return true iff ACK=1 in the packet
+     * return true if TCP packet's flag is ACK and vice versa
+     * @return the boolean value for TCP packet's ACK flag
      */
     public boolean isAck() {
         return ack;
     }
-
     /**
-     * Set ACK flag
-     * @param ack true iff ACK=1 in the packet
+     * set the object for ACK flag
+     * @param ack instance for ACK flag
      */
     public void setAck(boolean ack) {
         this.ack = ack;
     }
-
     /**
-     * Get SYN flag
-     * @return true iff SYN=1 in the packet
+     * return true if TCP packet's flag is SYN and vice versa
+     * @return the boolean value for TCP packet's SYN flag
      */
     public boolean isSyn() {
         return syn;
     }
-
     /**
-     * Set SYN flag
-     * @param syn true iff SYN=1 in the packet
+     * set the object for SYN flag
+     * @param syn instance for SYN flag
      */
     public void setSyn(boolean syn) {
         this.syn = syn;
     }
-
     /**
-     * Get FIN flag
-     * @return true iff FIN=1 in the packet
+     * return true if TCP packet's flag is FIN and vice versa
+     * @return the boolean value for TCP packet's FIN flag
      */
     public boolean isFin() {
         return fin;
     }
-
     /**
-     * Set FIN flag
-     * @param fin true iff FIN=1 in the packet
+     * set the object for FIN flag
+     * @param fin instance for FIN flag
      */
     public void setFin(boolean fin) {
         this.fin = fin;
     }
-
     /**
-     * Get RST flag
-     * @return true iff RST=1 in the packet
+     * return true if TCP packet's flag is RST and vice versa
+     * @return the boolean value for TCP packet's RST flag
      */
     public boolean isRst() {
         return rst;
     }
-
     /**
-     * Set RST flag
-     * @param rst true iff RST=1 in the packet
+     * set the object for RST flag
+     * @param rst instance for RST flag
      */
     public void setRst(boolean rst) {
         this.rst = rst;

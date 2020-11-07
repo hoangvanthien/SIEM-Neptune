@@ -3,20 +3,22 @@ package CEP.PortScanDetector;
 import Utilities.*;
 import com.espertech.esper.compiler.client.*;
 import com.espertech.esper.runtime.client.*;
+import org.pcap4j.packet.namednumber.*;
 
+import java.io.*;
 /**
- * Facade class to set up the CEP Engine to catch Horizontal Port Scan
- * The setup() function must be called after SinglePortScanCEP.setup()
- * @author Khuong Lu, Thien Hoang
+ * Compile EPL statements for the HorizontalPortScanAlert event
+ * A listener is attached to log message
+ * @author Lu Minh Khuong
+ * @author Hoang Van Thien
  */
 public class HorizontalPortScanCEP {
     private static int[] period = {10, 10};
     private static int[] threshold = {2, 5};
-
     /**
-     * Set up the event streams in the CEP Engine with EPL Statement and some listeners
-     * @throws EPCompileException
-     * @throws EPDeployException
+     * add listener and set priority from low to high
+     * @throws EPCompileException Indicates an exception compiling a module or fire-and-forget query
+     * @throws EPDeployException Indicate that a precondition is not satisfied
      */
     public static void setup() throws EPCompileException, EPDeployException {
         setup("LowPriority", period[0], threshold[0]);
@@ -30,6 +32,14 @@ public class HorizontalPortScanCEP {
             DashboardAdapter.alertHigh("Port " + data[0].get("targetAddress") + " is under a horizontal port scan.");
         });
     }
+    /**
+     * setup EPL statement
+     * @param id port number of detected port
+     * @param period time interval for port scanning
+     * @param threshold the maximum of consecutive port scan detection
+     * @throws EPCompileException Indicates an exception compiling a module or fire-and-forget query
+     * @throws EPDeployException Indicate that a precondition is not satisfied
+     */
     private static void setup(String id, int period, int threshold) throws EPCompileException, EPDeployException {
         String latest = "SinglePortScan_SYN_Latest_H_" + id;
         String alert = "HorizontalPortScan_Alert_" + id;
@@ -42,34 +52,30 @@ public class HorizontalPortScanCEP {
 
                 "on "+alert+" as A delete from "+latest+" as B where B.targetAddress=A.targetAddress");
     }
-
     /**
-     * Get the current periods after which old packets (used to detect Horizontal Port Scan) will expire
-     * @return [period_lowPriority, period_highPriority]
+     * return the time interval of port scan
+     * @return the value of time interval port scan
      */
     public static int[] getPeriod() {
         return period;
     }
-
     /**
-     * Set the new periods after which old packets (used to detect Horizontal Port Scan) will expire
-     * @param period [period_lowPriority, period_highPriority]
+     * set the time interval of port scan
+     * @param period instance for time interval
      */
     public static void setPeriod(int[] period) {
         HorizontalPortScanCEP.period = period;
     }
-
     /**
-     * Get the current thresholds (number of different machines that got scanned) over which a horizontal port scan alert will be raised
-     * @return [threshold_lowPriority, threshold_highPriority]
+     * return the threshold port scan detection
+     * @return the value of threshold
      */
     public static int[] getThreshold() {
         return threshold;
     }
-
     /**
-     * Set the new thresholds (number of different machines that got scanned) over which a horizontal port scan alert will be raised
-     * @param threshold [threshold_lowPriority, threshold_highPriority]
+     * set the threshold of port scan
+     * @param threshold instance of threshold for port scan
      */
     public static void setThreshold(int[] threshold) {
         HorizontalPortScanCEP.threshold = threshold;

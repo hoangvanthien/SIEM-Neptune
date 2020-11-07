@@ -12,10 +12,9 @@ import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.*;
-
 /**
- * main class of the Port Scan Detector component
- * @author Khuong Lu, Thien Hoang
+ * Setup the Esper's runtime and packet capture, captured network packets are passed to the Esper's runtime
+ * @author Lu Minh Khuong
  */
 public class Detector {
     private static final int snapshotLength = 65536; // in bytes
@@ -24,33 +23,29 @@ public class Detector {
     private static final String filter = "tcp";
     private static Thread t1 = null;
 
-    /**
-     * main function if you want to run the Port Scan Detector alone
-     * @param args command line arguments
-     * @throws EPCompileException
-     * @throws IOException
-     * @throws EPDeployException
-     * @throws PcapNativeException
-     * @throws InterruptedException
-     * @throws NotOpenException
-     * @throws ParseException
-     */
     public static void main (String [] args) throws EPCompileException, IOException, EPDeployException, PcapNativeException, InterruptedException, NotOpenException, ParseException {
         execute();
     }
-
     /**
-     * Run the Port Scan Detector
-     * @throws EPCompileException
-     * @throws IOException
-     * @throws EPDeployException
-     * @throws PcapNativeException
-     * @throws NotOpenException
-     * @throws InterruptedException
-     * @throws ParseException
+     * capture TCP/IP packet
+     * @throws EPCompileException Indicates an exception compiling a module or fire-and-forget query
+     * @throws IOException Indicate that failed or interrupted I/O operations
+     * @throws EPDeployException Indicate that a precondition is not satisfied
+     * @throws PcapNativeException Indicate if an error occurs in the pcap native library.
+     * @throws NotOpenException Indicate if the PcapHandle is not open
+     * @throws InterruptedException Indicate if the thread is interrupted
+     * @throws ParseException Indicate that fail to parse into predefined form
      */
     public static void execute() throws EPCompileException, IOException, EPDeployException, PcapNativeException, NotOpenException, InterruptedException, ParseException {
         String deviceName = "any";
+
+//        new HorizontalPortScanCEP(60, 2, 10); // set to 2 to test, use 5 or more in production
+//        new BlockPortScanCEP(20,10);
+//        InetAddress ip = null;
+//        try(final DatagramSocket socket = new DatagramSocket()){
+//            socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
+//            ip = socket.getLocalAddress();
+//        }
         PcapNetworkInterface device = getNetworkDevice(deviceName);
 
         System.out.println("Please wait while I'm configuring the Port Scan... ");
@@ -83,11 +78,20 @@ public class Detector {
         // Cleanup when complete
         handle.close();
     }
-
+    /**
+     * send event
+     * @param event instance of event
+     * @param eventType type of event
+     * @param <EventType> predefined type of object event
+     */
     static <EventType> void sendEvent(EventType event, String eventType) {
         EPAdapter.runtime.getEventService().sendEventBean(event, eventType);
     }
-
+    /**
+     * get the name of device
+     * @param deviceName instance contain device's name
+     * @return the string contain name of device
+     */
     static PcapNetworkInterface getNetworkDevice(String deviceName) {
         try {
             return Pcaps.getDevByName(deviceName);
@@ -96,7 +100,11 @@ public class Detector {
             return null;
         }
     }
-
+    /**
+     * get ip address of device
+     * @param inetAddress instance contain device's ip address
+     * @return the string contain ip address of device
+     */
     static PcapNetworkInterface getNetworkDevice(InetAddress inetAddress) {
         try {
             return Pcaps.getDevByAddress(inetAddress);
