@@ -6,9 +6,10 @@ import javax.swing.event.*;
 import javax.swing.text.*;
 
 /**
- * Set up the console on the Dashboard
- * @author Hieu Le
+ * setup the console of dashboard
+ * @author Le Dinh Trung Hieu
  */
+
 public class MessageConsole
 {
     private JTextComponent textComponent;
@@ -16,11 +17,20 @@ public class MessageConsole
     private boolean isAppend;
     private DocumentListener limitLinesListener;
 
+    /**
+     * constructor
+     * @param textComponent
+     */
     public MessageConsole(JTextComponent textComponent)
     {
         this(textComponent, true);
     }
 
+    /**
+     * default constructor
+     * @param textComponent
+     * @param isAppend
+     */
     public MessageConsole(JTextComponent textComponent, boolean isAppend)
     {
         this.textComponent = textComponent;
@@ -35,27 +45,37 @@ public class MessageConsole
         redirectOut(null, null);
     }
 
-
+    /**
+     * set the output stream of text's color printed on text area
+     * @param textColor text's color
+     * @param printStream stream of lines printed on dashboard
+     */
     public void redirectOut(Color textColor, PrintStream printStream)
     {
         ConsoleOutputStream cos = new ConsoleOutputStream(textColor, printStream);
         System.setOut( new PrintStream(cos, true) );
     }
 
-
     public void redirectErr()
     {
         redirectErr(null, null);
     }
 
-
+    /**
+     * set the error stream of text's color printed on text area
+     * @param textColor
+     * @param printStream
+     */
     public void redirectErr(Color textColor, PrintStream printStream)
     {
         ConsoleOutputStream cos = new ConsoleOutputStream(textColor, printStream);
         System.setErr( new PrintStream(cos, true) );
     }
 
-
+    /**
+     * add listener to handle lines printed on dashboard
+     * @param lines the lines printed on dashboard
+     */
     public void setMessageLines(int lines)
     {
         if (limitLinesListener != null)
@@ -74,8 +94,10 @@ public class MessageConsole
         private StringBuffer buffer = new StringBuffer(80);
         private boolean isFirstLine;
 
-        /*
-         *  Specify the option text color and PrintStream
+        /**
+         * Specify the option text color and PrintStream
+         * @param textColor
+         * @param printStream
          */
         public ConsoleOutputStream(Color textColor, PrintStream printStream)
         {
@@ -91,6 +113,9 @@ public class MessageConsole
                 isFirstLine = true;
         }
 
+        /**
+         * refresh and clear the output text area
+         */
         public void flush()
         {
             String message = toString();
@@ -105,7 +130,10 @@ public class MessageConsole
             reset();
         }
 
-
+        /**
+         * append the new line where the data has to be read in the log file
+         * @param message the message after being parsed into predefined Java object
+         */
         private void handleAppend(String message)
         {
             if (document.getLength() == 0)
@@ -123,6 +151,10 @@ public class MessageConsole
 
         }
 
+        /**
+         * load data to dashboard
+         * @param message
+         */
         private void handleInsert(String message)
         {
             buffer.append(message);
@@ -133,7 +165,9 @@ public class MessageConsole
             }
         }
 
-
+        /**
+         * clear cache in dashboard
+         */
         private void clearBuffer()
         {
 
