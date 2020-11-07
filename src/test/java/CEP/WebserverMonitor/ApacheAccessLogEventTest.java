@@ -18,7 +18,6 @@ class ApacheAccessLogEventTest {
             e.printStackTrace();
         }
         assertEquals(event.getUrl(), "login.php");
-        assert(!event.isBadRequest());
         assertEquals(event.getTimestamp(), 1602674851000L);
     }
 }

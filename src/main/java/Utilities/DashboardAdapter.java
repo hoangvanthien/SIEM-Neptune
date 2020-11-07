@@ -15,10 +15,13 @@ public class DashboardAdapter {
     public static final int ERROR_LOG_TABLE = 2;
     public static final int PORT_SCAN_TABLE = 3;
 
-    static DefaultTableModel[] tables = {Dashboard.dashboards.dtm0, Dashboard.dashboards.dtm, Dashboard.dashboards.dtm2, Dashboard.dashboards.dtm3};
+    static DefaultTableModel[] tables = null;
 
     public static void writeToTable(EventBean o, int i) {
         if (disabled) return;
+        if (tables == null) {
+            tables = new DefaultTableModel[]{Dashboard.dashboards.dtm0, Dashboard.dashboards.dtm, Dashboard.dashboards.dtm2, Dashboard.dashboards.dtm3};
+        }
         if (i == ACCESS_LOG_TABLE) {
             tables[i].addRow(new Object[]{Misc.formatTime((long)o.get("timestamp")), o.get("clientAddress"), o.get("url"), o.get("httpStatusCode"), o.get("requestMethod")});
         } else if (i == ERROR_LOG_TABLE) {
