@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 /**
  * Read and parse the Neptune Error Log file
  * @author Hoang Van Thien
+ * @author Nguyen Hoang Quan
  */
 public class NeptuneErrorLogEvent {
 

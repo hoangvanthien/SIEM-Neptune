@@ -10,7 +10,6 @@ import com.espertech.esper.runtime.client.EPDeployException;
  * An event listener is added to log the alert message
  * @author Hoang Van Thien
  * @author Lu Minh Khuong
- * @author Nguyen Hoang Quan
  */
 
 
