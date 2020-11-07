@@ -4,31 +4,47 @@ import javax.swing.event.*;
 import javax.swing.text.*;
 
 /**
- *
- * @author Hieu Le
+ * add listener to handle number of lines printed on dashboard
+ * @author Le Dinh Trung Hieu
  */
 public class LimitLinesDocumentListener implements DocumentListener
 {
     private int maximumLines;
     private boolean isRemoveFromStart;
 
+    /**
+     * constructor
+     * @param maximumLines maximum lines printed on dashboard
+     */
     public LimitLinesDocumentListener(int maximumLines)
     {
         this(maximumLines, true);
     }
 
-
+    /**
+     * default constructor
+     * @param maximumLines maximum lines printed on dashboard
+     * @param isRemoveFromStart true iff the printed oldest line is removed
+     */
     public LimitLinesDocumentListener(int maximumLines, boolean isRemoveFromStart)
     {
         setLimitLines(maximumLines);
         this.isRemoveFromStart = isRemoveFromStart;
     }
 
+    /**
+     * return the maximum number of lines printed on dashboard
+     * @return the value of maximum limited lines
+     */
     public int getLimitLines()
     {
         return maximumLines;
     }
 
+    /**
+     * limit the printed lines on dashboard
+     * @param maximumLines
+     */
     public void setLimitLines(int maximumLines)
     {
         if (maximumLines < 1)
@@ -40,7 +56,10 @@ public class LimitLinesDocumentListener implements DocumentListener
         this.maximumLines = maximumLines;
     }
 
-
+    /**
+     * Gives notification that there was an insert into the document.
+     * @param e document event
+     */
     public void insertUpdate(final DocumentEvent e)
     {
 
@@ -53,10 +72,22 @@ public class LimitLinesDocumentListener implements DocumentListener
         });
     }
 
+    /**
+     * gives notification that a portion of the document has been removed.
+     * @param e document event
+     */
     public void removeUpdate(DocumentEvent e) {}
+
+    /**
+     * gives notification that an attribute or set of attributes changed.
+     * @param e the document event
+     */
     public void changedUpdate(DocumentEvent e) {}
 
-
+    /**
+     * remove the line when the limit of number of printed lines on dashboard is reached
+     * @param e document event
+     */
     private void removeLines(DocumentEvent e)
     {
 
@@ -76,8 +107,10 @@ public class LimitLinesDocumentListener implements DocumentListener
         }
     }
 
-    /*
-     *  Remove lines from the start of the Document
+    /**
+     * Remove lines from the start of the Document
+     * @param document the whole printed lines on dashboard
+     * @param root the first line in dashboard
      */
     private void removeFromStart(Document document, Element root)
     {
@@ -94,7 +127,11 @@ public class LimitLinesDocumentListener implements DocumentListener
         }
     }
 
-
+    /**
+     * Remove lines from the end of the Document
+     * @param document the whole printed lines on dashboard
+     * @param root the first line in dashboard
+     */
     private void removeFromEnd(Document document, Element root)
     {
 
