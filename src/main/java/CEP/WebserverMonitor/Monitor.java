@@ -1,32 +1,30 @@
 package CEP.WebserverMonitor;
 
+import Dashboard.Dashboard;
 import Utilities.EPAdapter;
 import com.espertech.esper.compiler.client.EPCompileException;
 import com.espertech.esper.runtime.client.EPDeployException;
 
 import java.io.IOException;
-
+import java.util.ArrayList;
 /**
- * main class of the Webserver Monitor component
- * @author Khuong Lu, Thien Hoang
+ * setup the monitor to run the CEP of log file
+ * @author Hoang Van Thien
  */
 public class Monitor {
 
-    /**
-     * main function if you want to run the Webserver Monitor alone
-     * @param args command line arguments
-     * @throws Exception
-     */
     public static void main (String [] args) throws Exception {
         execute();
     }
-
     /**
-     * Run the Webserver Monitor
-     * @throws EPCompileException
-     * @throws EPDeployException
+     * Execute the CEP engine of log file
+     * @throws EPCompileException Indicates an exception compiling a module or fire-and-forget query
+     * @throws EPDeployException Indicate that a precondition is not satisfied
+     * @throws IOException Indicate that failed or interrupted I/O operations
+     * @throws NoSuchFieldException Indicate that the method doesn't have a field of a specified name.
+     * @throws IllegalAccessException Indicate that the method does not have access to specified field
      */
-    public static void execute() throws EPCompileException, EPDeployException {
+    public static void execute() throws EPCompileException, EPDeployException, IOException, NoSuchFieldException, IllegalAccessException {
         System.out.println("Please wait while I'm configuring the Event Processor... ");
         ApacheAccessLogCEP.setup();
         NeptuneErrorLogCEP.setup();

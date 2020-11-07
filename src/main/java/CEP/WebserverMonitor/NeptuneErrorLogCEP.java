@@ -2,38 +2,40 @@ package CEP.WebserverMonitor;
 
 import Utilities.DashboardAdapter;
 import Utilities.EPAdapter;
+import Utilities.Misc;
 import com.espertech.esper.compiler.client.EPCompileException;
 import com.espertech.esper.runtime.client.EPDeployException;
-
 /**
- * Facade class to set up the CEP Engine to analyze the events recorded by the Webserver
- * @author Khuong Lu, Thien Hoang
+ * Read and parse the Neptune Error Log file
+ * @author Hoang Van Thien
  */
 public class NeptuneErrorLogCEP {
-    private static int[] bruteForce_period = {10, 10};
-    private static int[] dictAttack_period = {10, 10};
-    private static int[] userBaseScan_period = {10, 10};
-    private static int[] bruteForce_threshold = {3, 5};
-    private static int[] dictAttack_threshold = {3, 5};
-    private static int[] userBaseScan_threshold = {3, 5};
+    private static int[] failedLoginByUsername_period = {10, 10};
+    private static int[] failedLoginByPassword_period = {10, 10};
+    private static int[] failedRegister_period = {10, 10};
+    private static int[] failedLoginByUsername_threshold = {3, 5};
+    private static int[] failedLoginByPassword_threshold = {3, 5};
+    private static int[] failedRegister_threshold = {3, 5};
 
     /**
-     * Set up the event streams in the CEP Engine with EPL Statement and some listeners
-     * @throws EPCompileException
-     * @throws EPDeployException
+     * add listener and setup priority from low to high in range
+     * @throws EPCompileException Indicates an exception compiling a module or fire-and-forget query
+     * @throws EPDeployException Indicate that a precondition is not satisfied
+     * @throws NoSuchFieldException Indicate that the method doesn't have a field of a specified name.
+     * @throws IllegalAccessException Indicate that the method does not have access to specified field
      */
-    public static void setup() throws EPCompileException, EPDeployException {
+    public static void setup() throws EPCompileException, EPDeployException, NoSuchFieldException, IllegalAccessException {
         new EPAdapter().execute("select * from NEL_Event").
                 addListener( (newData, __, ___, ____) -> {
                     DashboardAdapter.writeToTable(newData[0], 2);
                 });
 
-        setup_BruteForce("LowPriority", bruteForce_period[0], bruteForce_threshold[0]);
-        setup_BruteForce("HighPriority", bruteForce_period[1], bruteForce_threshold[1]);
-        setup_DictionaryAttack("LowPriority", dictAttack_period[0], dictAttack_threshold[0]);
-        setup_DictionaryAttack("HighPriority", dictAttack_period[1], dictAttack_threshold[1]);
-        setup_UserBaseScan("LowPriority", userBaseScan_period[0], userBaseScan_threshold[0]);
-        setup_UserBaseScan("HighPriority", userBaseScan_period[1], userBaseScan_threshold[1]);
+        setup_BruteForce("LowPriority", failedLoginByUsername_period[0], failedLoginByUsername_threshold[0]);
+        setup_BruteForce("HighPriority", failedLoginByUsername_period[1], failedLoginByUsername_threshold[1]);
+        setup_DictionaryAttack("LowPriority", failedLoginByPassword_period[0], failedLoginByPassword_threshold[0]);
+        setup_DictionaryAttack("HighPriority", failedLoginByPassword_period[1], failedLoginByPassword_threshold[1]);
+        setup_UserBaseScan("LowPriority", failedRegister_period[0], failedRegister_threshold[0]);
+        setup_UserBaseScan("HighPriority", failedRegister_period[1], failedRegister_threshold[1]);
         setup_SuccessChangePassword();
 
         EPAdapter.quickExecute("@public insert into UserHacked_Alert " +
@@ -81,6 +83,14 @@ public class NeptuneErrorLogCEP {
     static final String failedRegisterPattern = "Failed to register for %. Account already exists.";
     static final String successPasswordChangePattern = "Successfully changed password for %.";
 
+    /**
+     * EPL statement for Brute Force
+     * @param id user's ip address
+     * @param period time interval condition for consecutive failed login
+     * @param threshold the maximum of consecutive failed login by username
+     * @throws EPCompileException Indicates an exception compiling a module or fire-and-forget query
+     * @throws EPDeployException Indicate that a precondition is not satisfied
+     */
     private static void setup_BruteForce(String id, int period, int threshold) throws EPCompileException, EPDeployException {
         String filtered = "FailedLogin_Event_ByUsername_" + id;
         String latest = "FailedLogin_Latest_ByUsername_" + id;
@@ -99,6 +109,14 @@ public class NeptuneErrorLogCEP {
                 "on "+alert+" as A delete from "+latest+" as B where A.username=B.username");
     }
 
+    /**
+     * EPL statement for Dictionary attack
+     * @param id user's ip address
+     * @param period time interval condition for consecutive failed login
+     * @param threshold the maximum of consecutive failed login by password
+     * @throws EPCompileException Indicates an exception compiling a module or fire-and-forget query
+     * @throws EPDeployException Indicate that a precondition is not satisfied
+     */
     private static void setup_DictionaryAttack(String id, int period, int threshold) throws EPCompileException, EPDeployException {
         String filtered = "FailedLogin_Event_ByPassword_" + id;
         String latest = "FailedLogin_Latest_ByPassword_" + id;
@@ -117,6 +135,14 @@ public class NeptuneErrorLogCEP {
                 "on "+alert+" as A delete from "+latest+" as B where A.password=B.password");
     }
 
+    /**
+     * EPL statement for failed register
+     * @param id user's ip address
+     * @param period time interval condition for consecutive failed register
+     * @param threshold the maximum of consecutive failed register account
+     * @throws EPCompileException Indicates an exception compiling a module or fire-and-forget query
+     * @throws EPDeployException Indicate that a precondition is not satisfied
+     */
     private static void setup_UserBaseScan(String id, int period, int threshold) throws EPCompileException, EPDeployException {
         String filtered = "FailedRegister_Event__" + id;
         String latest = "FailedRegister_Latest__" + id;
@@ -135,6 +161,11 @@ public class NeptuneErrorLogCEP {
                 "on "+alert+" as A delete from "+latest+" as B where A.clientAddress=B.clientAddress");
     }
 
+    /**
+     * EPL statement for successfully change password
+     * @throws EPCompileException Indicates an exception compiling a module or fire-and-forget query
+     * @throws EPDeployException Indicate that a precondition is not satisfied
+     */
     private static void setup_SuccessChangePassword() throws EPCompileException, EPDeployException {
         String filtered = "SuccessChangePassword_Event";
         EPAdapter.quickExecute("@public insert into "+filtered+
@@ -142,104 +173,92 @@ public class NeptuneErrorLogCEP {
                 " clientAddress" +
                 " from NEL_Event(message like '"+successPasswordChangePattern+"')");
     }
-
     /**
-     * Get the current periods after which old events (used to detect brute force) will expire
-     * @return [period_lowPriority, period_highPriority]
+     * return the time interval condition for brute force
+     * @return the value of time interval condition
      */
-    public static int[] getBruteForce_period() {
-        return bruteForce_period;
+    public static int[] getFailedLoginByUsername_period() {
+        return failedLoginByUsername_period;
     }
-
     /**
-     * Set the new periods after which old events (used to detect brute force) will expire
-     * @param bruteForce_period [period_lowPriority, period_highPriority]
+     * set the time interval condition for brute force
+     * @param failedLoginByUsername_period instance for period condition
      */
-    public static void setBruteForce_period(int[] bruteForce_period) {
+    public static void setFailedLoginByUsername_period(int[] failedLoginByUsername_period) {
         EPAdapter.destroy();
-        NeptuneErrorLogCEP.bruteForce_period = bruteForce_period;
+        NeptuneErrorLogCEP.failedLoginByUsername_period = failedLoginByUsername_period;
     }
-
     /**
-     * Get the current periods after which old events (used to detect dictionary attack) will expire
-     * @return [period_lowPriority, period_highPriority]
+     * return the time interval condition for dictionary attack
+     * @return the value of time interval condition
      */
-    public static int[] getDictAttack_period() {
-        return dictAttack_period;
+    public static int[] getFailedLoginByPassword_period() {
+        return failedLoginByPassword_period;
     }
-
     /**
-     * Set the new periods after which old events (used to detect dictionary attack) will expire
-     * @param dictAttack_period [period_lowPriority, period_highPriority]
+     * set the time interval condition for dictionary attack
+     * @param failedLoginByPassword_period instance for period condition
      */
-    public static void setDictAttack_period(int[] dictAttack_period) {
+    public static void setFailedLoginByPassword_period(int[] failedLoginByPassword_period) {
         EPAdapter.destroy();
-        NeptuneErrorLogCEP.dictAttack_period = dictAttack_period;
+        NeptuneErrorLogCEP.failedLoginByPassword_period = failedLoginByPassword_period;
     }
-
     /**
-     * Get the current periods after which old events (used to detect user base scanning) will expire
-     * @return [period_lowPriority, period_highPriority]
+     * return the time interval condition for failed register
+     * @return the value of time interval condition
      */
-    public static int[] getUserBaseScan_period() {
-        return userBaseScan_period;
+    public static int[] getFailedRegister_period() {
+        return failedRegister_period;
     }
-
     /**
-     * Set the new periods after which old events (used to detect user base scan) will expire
-     * @param userBaseScan_period [period_lowPriority, period_highPriority]
+     * set the time interval condition for failed register
+     * @param failedRegister_period instance for period condition
      */
-    public static void setUserBaseScan_period(int[] userBaseScan_period) {
+    public static void setFailedRegister_period(int[] failedRegister_period) {
         EPAdapter.destroy();
-        NeptuneErrorLogCEP.userBaseScan_period = userBaseScan_period;
+        NeptuneErrorLogCEP.failedRegister_period = failedRegister_period;
     }
-
     /**
-     * Get the current thresholds (number of different passwords) over which a brute-force alert will be raised
-     * @return [threshold_lowPriority, threshold_highPriority]
+     * return the threshold for brute force
+     * @return the value of threshold
      */
-    public static int[] getBruteForce_threshold() {
-        return bruteForce_threshold;
+    public static int[] getFailedLoginByUsername_threshold() {
+        return failedLoginByUsername_threshold;
     }
-
     /**
-     * Set the new thresholds (number of different passwords) over which a brute-force alert will be raised
-     * @param bruteForce_threshold [threshold_lowPriority, threshold_highPriority]
+     * set the threshold for consecutive failed login by username
+     * @param failedLoginByUsername_threshold instance for threshold
      */
-    public static void setBruteForce_threshold(int[] bruteForce_threshold) {
+    public static void setFailedLoginByUsername_threshold(int[] failedLoginByUsername_threshold) {
         EPAdapter.destroy();
-        NeptuneErrorLogCEP.bruteForce_threshold = bruteForce_threshold;
+        NeptuneErrorLogCEP.failedLoginByUsername_threshold = failedLoginByUsername_threshold;
     }
-
     /**
-     * Get the current thresholds (number of different usernames) over which a dictionary attack alert will be raised
-     * @return [threshold_lowPriority, threshold_highPriority]
+     * return the threshold for dictionary attack
+     * @return the value of threshold
      */
-    public static int[] getDictAttack_threshold() {
-        return dictAttack_threshold;
+    public static int[] getFailedLoginByPassword_threshold() {
+        return failedLoginByPassword_threshold;
     }
-
     /**
-     * Set the new thresholds (number of different usernames) over which a dictionary attack alert will be raised
-     * @param dictAttack_threshold [threshold_lowPriority, threshold_highPriority]
+     * set the threshold for consecutive failed login by password
+     * @param failedLoginByPassword_threshold instance for threshold
      */
-    public static void setDictAttack_threshold(int[] dictAttack_threshold) {
-        NeptuneErrorLogCEP.dictAttack_threshold = dictAttack_threshold;
+    public static void setFailedLoginByPassword_threshold(int[] failedLoginByPassword_threshold) {
+        NeptuneErrorLogCEP.failedLoginByPassword_threshold = failedLoginByPassword_threshold;
     }
-
     /**
-     * Get the current thresholds (number of different usernames) over which a user base scan alert will be raised
-     * @return [threshold_lowPriority, threshold_highPriority]
+     * return the threshold for failed register
+     * @return the value of threshold
      */
-    public static int[] getUserBaseScan_threshold() {
-        return userBaseScan_threshold;
+    public static int[] getFailedRegister_threshold() {
+        return failedRegister_threshold;
     }
-
     /**
-     * Set the new thresholds (number of different usernames) over which a user base scan alert will be raised
-     * @param userBaseScan_threshold [threshold_lowPriority, threshold_highPriority]
+     * set the threshold for consecutive failed register
+     * @param failedRegister_threshold instance for threshold
      */
-    public static void setUserBaseScan_threshold(int[] userBaseScan_threshold) {
-        NeptuneErrorLogCEP.userBaseScan_threshold = userBaseScan_threshold;
+    public static void setFailedRegister_threshold(int[] failedRegister_threshold) {
+        NeptuneErrorLogCEP.failedRegister_threshold = failedRegister_threshold;
     }
 }

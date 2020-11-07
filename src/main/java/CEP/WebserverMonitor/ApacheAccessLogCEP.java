@@ -5,18 +5,22 @@ import Utilities.EPAdapter;
 import Utilities.Misc;
 import com.espertech.esper.compiler.client.EPCompileException;
 import com.espertech.esper.runtime.client.EPDeployException;
-
 /**
- * Facade class to set up the CEP Engine to analyze the requests made to the Webserver
+ * Compile EPL statement to raise alert for Apache access log file bad request
+ * An event listener is added to log the alert message
+ * @author Hoang Van Thien
+ * @author Lu Minh Khuong
+ * @author Nguyen Hoang Quan
  */
+
+
 public class ApacheAccessLogCEP {
     private static int[] period = {10, 10};
     private static int[] threshold = {3, 5};
-
     /**
-     * Set up the event streams in the CEP Engine with EPL Statement and some listeners
-     * @throws EPCompileException
-     * @throws EPDeployException
+     * add listener and set priority from low to high in range
+     *@throws EPCompileException Indicates an exception compiling a module or fire-and-forget query
+     *@throws EPDeployException Indicate that a precondition is not satisfied
      */
     public static void setup() throws EPCompileException, EPDeployException {
         setup("LowPriority", period[0], threshold[0]);
@@ -36,7 +40,11 @@ public class ApacheAccessLogCEP {
                     DashboardAdapter.alertHigh("Likely missing file: " + newData[0].get("url"));
                 });
     }
-
+    /**
+     * setup EPL statement for executing
+     *@throws EPCompileException Indicates an exception compiling a module or fire-and-forget query
+     *@throws EPDeployException Indicate that a precondition is not satisfied
+     */
     private static void setup(String id, int period, int threshold) throws EPCompileException, EPDeployException {
         String latest = "AAL_Latest_FileMissing_"+id;
         String alert = "AAL_Alert_FileMissing_"+id;
@@ -49,35 +57,31 @@ public class ApacheAccessLogCEP {
                 "on "+alert+" as a delete from "+latest+" as b where a.url=b.url"
         );
     }
-
     /**
-     * Get the current periods after which old events will expire
-     * @return [period_lowPriority, period_highPriority]
+     * return time interval for a scan to take place
+     * @return the value of time interval
      */
     public static int[] getPeriod() {
         return period;
     }
-
     /**
-     * Set the new periods after which old events will expire
-     * @param period [period_lowPriority, period_highPriority]
+     * set the time interval for a scan to take place
+     * @param period initialized interval interval for a scan to take place
      */
     public static void setPeriod(int[] period) {
         EPAdapter.destroy();
         ApacheAccessLogCEP.period = period;
     }
-
     /**
-     * Get the current thresholds (number of 404 responses) over which a resource missing alert will be raised
-     * @return [threshold_lowPriority, threshold_highPriority]
+     * return the threshold of consecutive failed access log times
+     * @return the value of consecutive failure access log count
      */
     public static int[] getThreshold() {
         return threshold;
     }
-
     /**
-     * Set the new thresholds (number of 404 responses) over which a resource missing alert will be raised
-     * @param threshold [threshold_lowPriority, threshold_highPriority]
+     * setup the maximum number of times for consecutive failed access log
+     * @param threshold initialized threshold of failed access log
      */
     public static void setThreshold(int[] threshold) {
         EPAdapter.destroy();
