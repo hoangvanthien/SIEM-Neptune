@@ -16,14 +16,12 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Adapter class that helps executing EPL statements with less effort
- * @author Thien Hoang
+ * setup CEP engine structure and add listener
+ * @author Hoang Van Thien
  */
 public class EPAdapter {
-
     /**
-     * Prepare the environment
-     * That includes compiler, configuration, runtime, and arguments.
+     * config and setup EPL compiler
      */
     public static void setup() {
         compiler = EPCompilerProvider.getCompiler();
@@ -41,8 +39,7 @@ public class EPAdapter {
     }
 
     /**
-     * Destroy the environment
-     * That includes compiler, configuration, runtime, and arguments.
+     * clean and restart the EPL compiler
      */
     public static void destroy() {
         if (runtime != null) runtime.destroy();
@@ -53,15 +50,21 @@ public class EPAdapter {
     }
 
     /**
-     * Constructor
-     * Start creating the environment iff it does not exist
+     * start the EPL compiler
      */
     public EPAdapter() {
         if (compiler != null && configuration != null && runtime != null) return;
         setup();
     }
 
-    private EPAdapter execute(String name, String statement) throws EPCompileException, EPDeployException {
+    /**
+     * setup EPL structure and Run the EPL compiler
+     * @param name the name of EPL statement
+     * @param statement instance contain the EPL statements
+     * @throws EPCompileException Indicates an exception compiling a module or fire-and-forget query
+     * @throws EPDeployException Indicate that a precondition is not satisfied
+     */
+    public EPAdapter execute(String name, String statement) throws EPCompileException, EPDeployException {
         EPCompiled epCompiled = compiler.compile("@name('"+ name +"') " + statement, arguments);
         arguments.getPath().add(epCompiled);
         EPDeployment deployment = runtime.getDeploymentService().deploy(epCompiled);
@@ -69,21 +72,13 @@ public class EPAdapter {
         return this;
     }
 
-    /**
-     * Execute an EPL statement in the shared environment
-     * @param statement the EPL statement
-     * @return an instance of the adapter, which you can use to attach a listener with addListener
-     * @throws EPCompileException
-     * @throws EPDeployException
-     */
     public EPAdapter execute(String statement) throws EPCompileException, EPDeployException {
         return execute("Neptune"+(int)(Math.random()*100000), statement);
     }
 
     /**
      * Fire-and-forget execution
-     * Execute an EPL statement to which you do not intend to attach any listener
-     * @param statements the EPL statement
+     * @param statements instance contain EPL statement
      */
     public static void quickExecute(String... statements) throws EPCompileException, EPDeployException {
         for (String statement : statements) {
@@ -92,9 +87,8 @@ public class EPAdapter {
     }
 
     /**
-     * Execute all statements in a file in the shared environment
-     * With this method, you will not be able to attach listener to any of the statements in the file.
-     * @param filename the relative path to the file with respect to the resources folder
+     *
+     * @param filename
      * @throws IOException
      * @throws ParseException
      * @throws EPCompileException
@@ -109,40 +103,26 @@ public class EPAdapter {
     }
 
     /**
-     * Attach a listener to the statement belong to this instance.
-     * Normally you would call this immediately after executing a statement.
-     * For example: new EPAdapter().execute("SELECT * FROM TCPPacketEvent").addListener(...)
-     * @param listener preferably a lambda function with 4 parameters
+     * add listener to wait the event
+     * @param listener instance to trigger action
      */
     public void addListener(UpdateListener listener) {
         this.statement.addListener(listener);
     }
 
     /**
-     * Send a POJO to an event stream in CEP
-     * @param event the POJO
-     * @param eventType the name of the event stream set up in CEP
-     * @param <EventType> the Java-type of the object
+     * wrap the events and sed to CEP engine
+     * @param event instance to contain events
+     * @param eventType the event type of object
+     * @param <EventType> the predefined type of event object
      */
     public static <EventType> void sendEvent(EventType event, String eventType) {
         runtime.getEventService().sendEventBean(event, eventType);
     }
 
     private EPStatement statement;
-    /**
-     * Singleton compiler
-     */
     public static EPCompiler compiler;
-    /**
-     * Singleton configuration
-     */
     public static Configuration configuration;
-    /**
-     * Singleton arguments
-     */
     public static CompilerArguments arguments;
-    /**
-     * Singleton runtime
-     */
     public static EPRuntime runtime;
 }
