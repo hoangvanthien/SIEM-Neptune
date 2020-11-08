@@ -56,6 +56,7 @@ public class Detector {
         System.out.println("Please wait while I'm configuring the Port Scan... ");
         SinglePortScanCEP.setup();
         VerticalPortScanCEP.setup();
+        HorizontalPortScanCEP.setup();
         // New code below here
         if (device == null) {
             System.out.println("No device chosen.");

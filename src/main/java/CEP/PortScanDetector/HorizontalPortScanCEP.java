@@ -27,7 +27,7 @@ public class HorizontalPortScanCEP {
         });
 
         new EPAdapter().execute("select * from HorizontalPortScan_Alert_HighPriority").addListener((data, __, ___, ____) -> {
-            DashboardAdapter.alertHigh("Port " + data[0].get("targetAddress") + " is under a horizontal port scan.");
+            DashboardAdapter.alertHigh("Port " + data[0].get("targetPort") + " is under a horizontal port scan.");
         });
     }
     private static void setup(String id, int period, int threshold) throws EPCompileException, EPDeployException {
@@ -40,7 +40,7 @@ public class HorizontalPortScanCEP {
                         " select targetPort from "+latest+
                         " group by targetPort having count(distinct targetAddress) >= " + threshold,
 
-                "on "+alert+" as A delete from "+latest+" as B where B.targetAddress=A.targetAddress");
+                "on "+alert+" as A delete from "+latest+" as B where B.targetPort=A.targetPort");
     }
 
     /**
@@ -56,6 +56,7 @@ public class HorizontalPortScanCEP {
      * @param period [period_lowPriority, period_highPriority]
      */
     public static void setPeriod(int[] period) {
+        EPAdapter.destroy();
         HorizontalPortScanCEP.period = period;
     }
 
@@ -72,6 +73,7 @@ public class HorizontalPortScanCEP {
      * @param threshold [threshold_lowPriority, threshold_highPriority]
      */
     public static void setThreshold(int[] threshold) {
+        EPAdapter.destroy();
         HorizontalPortScanCEP.threshold = threshold;
     }
 }

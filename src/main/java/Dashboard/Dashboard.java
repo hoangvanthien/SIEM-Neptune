@@ -1,11 +1,15 @@
 package Dashboard;
 
 import CEP.PortScanDetector.Detector;
+import CEP.PortScanDetector.HorizontalPortScanCEP;
+import CEP.PortScanDetector.SinglePortScanCEP;
+import CEP.PortScanDetector.VerticalPortScanCEP;
 import CEP.WebserverMonitor.ApacheAccessLogCEP;
 import CEP.WebserverMonitor.Monitor;
 import CEP.WebserverMonitor.NeptuneErrorLogCEP;
 import Utilities.DashboardAdapter;
 import Utilities.EPAdapter;
+import com.espertech.esper.common.client.module.ParseException;
 import com.espertech.esper.compiler.client.EPCompileException;
 import com.espertech.esper.runtime.client.EPDeployException;
 import de.siegmar.fastcsv.writer.CsvWriter;
@@ -375,8 +379,20 @@ public class Dashboard extends JFrame implements DocumentListener, ActionListene
                             NeptuneErrorLogCEP.setUserBaseScan_threshold(thresholds);
                             NeptuneErrorLogCEP.setup();
                         }
+                        case 4 : {
+                            VerticalPortScanCEP.setPeriod(periods);
+                            VerticalPortScanCEP.setThreshold(thresholds);
+                            SinglePortScanCEP.setup();
+                            VerticalPortScanCEP.setup();
+                        }
+                        case 5 : {
+                            HorizontalPortScanCEP.setPeriod(periods);
+                            HorizontalPortScanCEP.setThreshold(thresholds);
+                            SinglePortScanCEP.setup();
+                            HorizontalPortScanCEP.setup();
+                        }
                     }
-                } catch (EPCompileException | EPDeployException exception) {
+                } catch (EPCompileException | EPDeployException | IOException | ParseException exception) {
                     exception.printStackTrace();
                 }
             }

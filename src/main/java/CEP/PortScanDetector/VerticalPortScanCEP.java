@@ -60,6 +60,7 @@ public class VerticalPortScanCEP {
      * @param period [period_lowPriority, period_highPriority]
      */
     public static void setPeriod(int[] period) {
+        EPAdapter.destroy();
         VerticalPortScanCEP.period = period;
     }
 
@@ -76,6 +77,7 @@ public class VerticalPortScanCEP {
      * @param threshold
      */
     public static void setThreshold(int[] threshold) {
+        EPAdapter.destroy();
         VerticalPortScanCEP.threshold = threshold;
     }
 }
